@@ -5,7 +5,7 @@
 
 from enum import Enum
 from random import randint
-from typing import Any
+from typing import Any, Optional
 
 
 class TokenType(Enum):
@@ -36,7 +36,7 @@ class Lexer:
     def __init__(self, text: str) -> None:
         self.text: str = text
         self.loc: int = 0
-        self.cache: str|None = self.text[self.loc]
+        self.cache: Optional[str] = self.text[self.loc]
     
     def _advance(self):
         """
