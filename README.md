@@ -8,6 +8,7 @@
 
 # 使用方法
 ```
+pip install nonebot_plugin_orangedice 
 nb plugin install nonebot_plugin_orangedice
 ```
 
@@ -30,8 +31,7 @@ SAVE_TYPE=FILE
 - .log upload       上传日志至群文件
 - .log clear        清除此群日志
 
-# 相关项目
-## 让我学习许多/w\
+# 参考项目(让我学习许多/w\)
 
 [OneDice](https://github.com/OlivOS-Team/onedice): Today, we stand as one. 
 [nonebot_plugin_cocdicer](https://github.com/abrahum/nonebot_plugin_cocdicer): A COC dice plugin for Nonebot2
