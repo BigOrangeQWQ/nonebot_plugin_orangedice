@@ -33,5 +33,5 @@ SAVE_TYPE=FILE
 
 # 参考项目(让我学习许多/w\)
 
-[OneDice](https://github.com/OlivOS-Team/onedice): Today, we stand as one. 
+[OneDice](https://github.com/OlivOS-Team/onedice): Today, we stand as one.  
 [nonebot_plugin_cocdicer](https://github.com/abrahum/nonebot_plugin_cocdicer): A COC dice plugin for Nonebot2
