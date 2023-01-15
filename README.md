@@ -21,8 +21,7 @@ SAVE_TYPE=FILE
 ```
 
 # 插件指令
-- .r [公式]         骰点
-- 请参考onedice内COC部分
+- .r [公式]         骰点(仅支持OneDice标准内COC骰子格式)
 - .ra[属性]         属性骰点  
 - .st[属性][数值]   人物卡录入
 - .st clear         清除人物卡
@@ -31,8 +30,8 @@ SAVE_TYPE=FILE
 - .log upload       上传日志至群文件
 - .log clear        清除此群日志
 
+# 相关项目
+## 让我学习许多/w\
 
-### 相关项目
-
-[OneDice](https://github.com/OlivOS-Team/onedice): Today, we stand as one.  
+[OneDice](https://github.com/OlivOS-Team/onedice): Today, we stand as one. 
 [nonebot_plugin_cocdicer](https://github.com/abrahum/nonebot_plugin_cocdicer): A COC dice plugin for Nonebot2
