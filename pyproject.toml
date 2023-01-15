@@ -12,7 +12,7 @@ dependencies = [
     "nonebot-adapter-onebot>=2.2.0",
     "pydantic>=1.10.4",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 readme = "README.md"
 license = {text = "MIT"}
 

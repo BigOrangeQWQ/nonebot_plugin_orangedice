@@ -151,7 +151,6 @@ requires_python = ">=3.7"
 summary = "The little ASGI library that shines."
 dependencies = [
     "anyio<5,>=3.4.0",
-    "typing-extensions>=3.10.0; python_version < \"3.10\"",
 ]
 
 [[package]]
@@ -197,7 +196,7 @@ dependencies = [
 name = "uvloop"
 version = "0.17.0"
 requires_python = ">=3.7"
-summary = "Fast implementation of asyncio event loop on top of libuv"
+summary = ""
 
 [[package]]
 name = "watchfiles"
@@ -232,7 +231,7 @@ dependencies = [
 
 [metadata]
 lock_version = "4.1"
-content_hash = "sha256:ceedb1a267cf85e7235a0335b491bd7a0f1d864a0a2972928029890acf10dd83"
+content_hash = "sha256:673dc55b60735e45cf25c4753a5418db334b3e8dbcf564614ee7017b373a8bb6"
 
 [metadata.files]
 "anyio 3.6.2" = [
