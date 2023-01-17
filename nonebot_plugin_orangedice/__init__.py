@@ -1,10 +1,9 @@
 from pathlib import Path
-from re import findall, search
-from tokenize import group
+from re import search
 from nonebot import get_driver
 from nonebot.matcher import Matcher
 from nonebot.plugin import on_startswith, on_message, PluginMetadata
-from nonebot.adapters.onebot.v11 import GroupMessageEvent, GROUP_ADMIN, GROUP_OWNER, Bot, escape
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, GROUP_ADMIN, GROUP_OWNER, Bot
 
 from nonebot_plugin_orangedice.model import DataContainer
 from nonebot_plugin_orangedice.utils import get_attrs
@@ -82,7 +81,7 @@ async def roll_card_handle(matcher: Matcher, event: GroupMessageEvent):
     msg = event.message.extract_plain_text()[3:].replace(' ', '').lower()
     name = event.sender.card if event.sender.card else event.sender.nickname
     # 正则匹配
-    match_item = search(r"\D{1,10}{1,100}", msg)  # 搜索 测试
+    match_item = search(r"[\u4e00-\u9fa5]{1,100}", msg)  # 搜索 测试
     match_num = search(r"\d{1,3}", msg)  # 搜索 测试100
 
     if match_item is None:

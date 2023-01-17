@@ -1,7 +1,7 @@
 """
 骰点相关，使用onedice协议
 """
-from typing import Optional
+from typing import Optional, Dict
 
 from .dice import Lexer, Parser
 
@@ -37,7 +37,7 @@ def RD(player_name: Optional[str], statement: str = '1d100', item: str = '', ) -
     return f"{player_name}进行了{item}检定{statement.upper()}={result}"
 
 
-def RA(player_name: Optional[str], item: str, attr: Optional[int], card: dict[str, int]) -> str:
+def RA(player_name: Optional[str], item: str, attr: Optional[int], card: Dict[str, int]) -> str:
     """进行检定并返回骰点信息
 
     Args:

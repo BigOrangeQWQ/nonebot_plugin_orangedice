@@ -1,7 +1,7 @@
 import json
+from typing import List
 from nonebot import get_driver
-from sqlmodel import Field, SQLModel, create_engine,\
-    select, Session
+from sqlmodel import Field, SQLModel, create_engine,select, Session
 
 from .config import Config
 
@@ -22,8 +22,6 @@ class DataContainer:
     def __init__(self) -> None:
         config = Config.parse_obj(get_driver().config)
         self.sqlite_file = config.sqlite_file
-        self.cache_player: dict[str, dict[str, int]] = {}
-        self.cache_log: dict[str, dict[str, bool]] = {}
         self.engine = create_engine(f"sqlite:///{self.sqlite_file}")
         SQLModel.metadata.create_all(self.engine)
 
@@ -63,7 +61,7 @@ class DataContainer:
                 return log
             return default
 
-    def save_log(self, group_id: int, log: bool, msg: list[str]):
+    def save_log(self, group_id: int, log: bool, msg: List[str]):
         with Session(self.engine) as session:
             statement = select(GroupLOG).where(GroupLOG.group_id == group_id)
             logs = session.exec(statement).first()

@@ -218,7 +218,7 @@ class Parser:
             return sum(_cache)
         return result
 
-    def atom(self) -> float | int:
+    def atom(self) -> Union[float,int]:
         """
         atom ::= digit | ('+'|"-") atom | '(' expr ')'
         """
@@ -254,9 +254,9 @@ class Num(AST):
 
 class DiceOP(AST):
     def __init__(self, left: int, op: Token, right: int,
-                 op2: Optional[Token], right2: Optional[Token],
-                 op3: Optional[Token], right3: Optional[Token],
-                 op4: Optional[Token], right4: Optional[Token]):
+                op2: Optional[Token], right2: Optional[Token],
+                op3: Optional[Token], right3: Optional[Token],
+                op4: Optional[Token], right4: Optional[Token]):
         """骰子运算
 
         Args:
