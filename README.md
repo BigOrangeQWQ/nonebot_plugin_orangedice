@@ -9,13 +9,23 @@ pip install nonebot_plugin_orangedice
 nb plugin install nonebot_plugin_orangedice
 ```
 
+请Python3.8下载0.2.0版本  
+其他版本停止3.8版本的维护工作  
+```
+nb plugin install nonebot_plugin_orangedice==0.2.0
+```
 ## 可选配置
-[人物卡/日志/缓存]储存位置
+[人物卡/日志/缓存]储存位置[0.2.0]
 ``` 
 CARD_FILE=card.json
 LOG_FILE=log.json
 CACHE_FILE=cache.json
-SAVE_TYPE=FILE
+```
+
+缓存储存/数据库位置
+```
+CACHE_FILE=cache.txt
+SQLITE_FILE=DICE.db
 ```
 
 ## 插件指令
