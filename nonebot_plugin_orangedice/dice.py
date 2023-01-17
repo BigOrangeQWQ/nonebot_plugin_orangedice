@@ -5,47 +5,49 @@
 
 from enum import Enum
 from random import randint
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 
 class TokenType(Enum):
     """符号表枚举类"""
-    NUMBER = 'NUMBER' #123456789
-    PLUS = 'PLUS' # +
-    MINUS = 'MINUS' # -
-    MUL = 'MUL' # *
-    DIV = 'DIV' # /
-    LPAREN = 'LPAREN' # (
-    RPAREN = 'RPAREN' # )
-    DICE = 'DICE' # d
-    DICE_POOL = 'DICE_POOL' #骰子池 a
-    DICE_LEVEL = 'DICE_LEVEL' #选取线 k/q
-    DICE_GIVE = 'DICE_GIVE' #奖惩 p/b
+    NUMBER = 'NUMBER'  # 123456789
+    PLUS = 'PLUS'  # +
+    MINUS = 'MINUS'  # -
+    MUL = 'MUL'  # *
+    DIV = 'DIV'  # /
+    LPAREN = 'LPAREN'  # (
+    RPAREN = 'RPAREN'  # )
+    DICE = 'DICE'  # d
+    DICE_POOL = 'DICE_POOL'  # 骰子池 a
+    DICE_LEVEL = 'DICE_LEVEL'  # 选取线 k/q
+    DICE_GIVE = 'DICE_GIVE'  # 奖惩 p/b
     EOF = 'EOF'
-    
+
 
 class Token:
     """令牌"""
+
     def __init__(self, type: TokenType, value: Any) -> None:
         self.value = value
         self.type = type
 
+
 class Lexer:
     """词法解析"""
-    
+
     def __init__(self, text: str) -> None:
         self.text: str = text
         self.loc: int = 0
         self.cache: Optional[str] = self.text[self.loc]
-    
+
     def _advance(self):
         """
         前进并解析下一个token
         """
-        self.loc+=1 #前进一步
+        self.loc += 1  # 前进一步
         # self.cache = self.text[self.loc]
         if self.loc > len(self.text) - 1:
-            self.cache = None 
+            self.cache = None
         else:
             self.cache = self.text[self.loc]
 
@@ -55,7 +57,7 @@ class Lexer:
         """
         while self.cache is not None and self.cache.isspace():
             self._advance()
-        
+
     def _integer(self):
         """
         解析Int/Float并返回
@@ -84,7 +86,7 @@ class Lexer:
                 return Token(TokenType.MINUS, '-')
             if self.cache == '*' or self.cache == 'x':
                 self._advance()
-                return Token(TokenType.MUL,'*')
+                return Token(TokenType.MUL, '*')
             if self.cache == '/':
                 self._advance()
                 return Token(TokenType.DIV, '/')
@@ -113,32 +115,34 @@ class Lexer:
                 self._advance()
                 return Token(TokenType.RPAREN, ')')
             raise Exception(f"no this key-word: {self.cache}")
-        return Token(TokenType.EOF,None)
-        
+        return Token(TokenType.EOF, None)
+
+
 class Parser:
     """语法解析"""
+
     def __init__(self, tokens: Lexer):
         self.tokens = tokens
         self.next_token: Token = Token(TokenType.EOF, None)
         self.token: Token = Token(TokenType.EOF, None)
-        self._advance()#初始化next token/token
-        
+        self._advance()  # 初始化
+
     def _advance(self):
         """获得下一个令牌"""
         self.token = self.next_token
         self.next_token = self.tokens.get_next()
-        
-    def _accept(self, type: TokenType):
+
+    def _accept(self, type: TokenType) -> bool:
         """
         是否接收到指定类型的令牌
         接收到指定令牌，令牌前进一步
         """
         if self.next_token and self.next_token.type == type:
-            self._advance() #前进一步
+            self._advance()  # 前进一步
             return True
         else:
             return False
-        
+
     def _expect(self, type: TokenType):
         """
         下一个令牌为某Type
@@ -146,74 +150,75 @@ class Parser:
         """
         if not self._accept(type):
             raise SyntaxError(f'Expected {type.name}')
-        
-    def _random(self, start: int = 1, end: int =100):
+
+    def _random(self, start: int = 1, end: int = 100) -> int:
         """随机数"""
-        return randint(start,end)
-        
-    def expr(self):
+        return randint(start, end)
+
+    def expr(self) -> Union[int, float]:
         """expr ::= expr | expr '+' term  | expr '-' term  | term"""
-        left = self.term() #左值
+        left = self.term()  # 左值
         while self._accept(TokenType.PLUS) or self._accept(TokenType.MINUS):
-            op = self.token.type #获取运算 符
-            right = self.term() #获取右值
+            op = self.token.type  # 获取运算 符
+            right = self.term()  # 获取右值
             if op == TokenType.PLUS:
-                left += right 
+                left += right
             elif op == TokenType.MINUS:
-                left -= right 
+                left -= right
         return left
-    
-    def term(self):
+
+    def term(self) -> Union[int, float]:
         """term ::= term | term '*' dice| term 'x' dice | term '/' dice | dice"""
-        left = self.dice() #左值
+        left = self.dice()  # 左值
         while self._accept(TokenType.MUL) or self._accept(TokenType.DIV):
-            op = self.token.type #获取运算 符
-            right = self.dice() #获取右值
+            op = self.token.type  # 获取运算 符
+            right = self.dice()  # 获取右值
             if op == TokenType.MUL:
-                left *= right 
+                left *= right
             elif op == TokenType.DIV:
-                left /= right 
+                left /= right
         return left
-    
-    def dice(self):
+
+    def dice(self) -> Union[int, float]:
         """
         dice ::=  dice 'd' atom ['k'|'q'] atom ['p'|'b'] atom ['a'] atom | atom
         """
         left = result = self.atom()
         while self._accept(TokenType.DICE):
             right = self.atom()
-            _cache = [self._random(1,int(right)) for i in range(0,int(left))] #储存骰子结果
+            _cache = [self._random(1, int(right))
+                      for i in range(0, int(left))]  # 储存骰子结果
             result = 0
-            #选取线 k大 q小
+            # 选取线 k大 q小
             if self._accept(TokenType.DICE_LEVEL):
                 arg = int(self.atom())
                 if self.token.value == 'k':
                     _cache.sort(reverse=True)
                 if self.token.value == 'p':
                     _cache.sort()
-                for i in range(0,arg):
+                for i in range(0, arg):
                     result += _cache[i]
-            #奖惩骰 p b
+            # 奖惩骰 p b
             if self._accept(TokenType.DICE_GIVE):
                 arg = int(self.atom())
-                _cache = [self._random(1,100) % 10]
-                _cache_list = [self._random(1,10) for i in range(0,arg)]
+                _cache = [self._random(1, 100) % 10]
+                _cache_list = [self._random(1, 10) for i in range(0, arg)]
                 if self.token.value == 'p':
                     _cache_list.sort(reverse=True)
                 if self.token.value == 'b':
                     _cache_list.sort()
                 return int(f'{_cache_list[0]}{_cache}')
-            #骰池 a
+            # 骰池 a
             if self._accept(TokenType.DICE_POOL):
                 arg = int(self.atom())
                 for i in _cache:
                     if (i > arg):
-                        result+=1
+                        result += 1
                 return result
             return sum(_cache)
         return result
-    
-    def atom(self) -> float|int:
+
+    def atom(self) -> float | int:
         """
         atom ::= digit | ('+'|"-") atom | '(' expr ')'
         """
@@ -225,9 +230,55 @@ class Parser:
             return exprval
         else:
             raise SyntaxError('Expected NUMBER or LPAREN')
-        
-    def parse(self):
+
+    def parse(self) -> Union[int, float]:
         return self.expr()
+
+
+class AST:
+    ...
+
+
+class BinOP(AST):
+    def __init__(self, left: int, op: Token, right: int):
+        self.left = left
+        self.token = self.op = op
+        self.right = right
+
+
+class Num(AST):
+    def __init__(self, token: Token):
+        self.token = token
+        self.value = token.value
+
+
+class DiceOP(AST):
+    def __init__(self, left: int, op: Token, right: int,
+                 op2: Optional[Token], right2: Optional[Token],
+                 op3: Optional[Token], right3: Optional[Token],
+                 op4: Optional[Token], right4: Optional[Token]):
+        """骰子运算
+
+        Args:
+            left (int): A
+            op (Token): 'd'
+            right (int): B
+            op2 (Token): 'k'|'q'
+            right2 (int): C
+            op3 (Token): 'p'|'b'
+            right3 (int): D
+            op4 (Token): 'a'
+            right4 (int): E
+        """
+        self.left = left
+        self.token = self.op = op
+        self.right = right
+        self.op2 = op2
+
+
+class Interpreter:
+    """解释器"""
+    ...
 
 # ——TEST——
 # args = [

@@ -1,12 +1,13 @@
-from re import search
+from pathlib import Path
+from re import findall, search
 from tokenize import group
 from nonebot import get_driver
 from nonebot.matcher import Matcher
 from nonebot.plugin import on_startswith, on_message, PluginMetadata
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, GROUP_ADMIN, GROUP_OWNER, Bot, escape
 
-from .card import Card
-from .log import Log
+from nonebot_plugin_orangedice.model import DataContainer
+
 from .config import Config
 from .roll import RA, RD
 
@@ -27,36 +28,7 @@ roll_card = on_startswith(".ra", priority=4)  # 人物技能roll点
 
 driver = get_driver()
 plugin_config = Config.parse_obj(driver.config)
-cards = Card()
-logs = Log()
-
-
-
-async def load_cache():
-    """
-    加载缓存文件
-    """
-    if plugin_config.save_type.lower() == 'file':
-        cards.read_json()
-        logs.read_json()
-    if plugin_config.save_type.lower() == 'sqlite':
-        # TODO:
-        ...
-
-async def save_cache():
-    """
-    储存缓存文件
-    """
-    if plugin_config.save_type.lower() == 'file':
-        cards.save_json()
-        logs.save_json()
-    if plugin_config.save_type.lower() == 'sqlite':
-        # TODO:
-        ...
-
-driver.on_startup(load_cache)
-driver.on_shutdown(save_cache)
-driver.on_bot_disconnect(save_cache)
+data = DataContainer()
 
 @roll.handle()
 async def roll_handle(matcher: Matcher, event: GroupMessageEvent):
@@ -84,8 +56,8 @@ async def roll_handle(matcher: Matcher, event: GroupMessageEvent):
     else:
         result = RD(name, msg.replace(matches.group(), ''), matches.group())
     # JOIN LOG MSG
-    if logs.is_loging(group_id):
-        logs.log_add_message(group_id, result)
+    if data.is_logging(group_id):
+        data.log_add(group_id, result)
     await matcher.finish(result)
 
 
@@ -104,7 +76,7 @@ async def roll_card_handle(matcher: Matcher, event: GroupMessageEvent):
     """
     user_id = event.user_id
     group_id = event.group_id
-    card = cards.get_card(user_id)
+    card = data.get_card(user_id).skills
     msg = event.message.extract_plain_text()[3:].replace(' ', '').lower()
     name = event.sender.card if event.sender.card else event.sender.nickname
     # 正则匹配
@@ -119,8 +91,8 @@ async def roll_card_handle(matcher: Matcher, event: GroupMessageEvent):
     else:
         result = RA(name, match_item.group(), None, card)
     # JOIN LOG MSG
-    if logs.is_loging(group_id):
-        logs.log_add_message(group_id, result)
+    if data.is_logging(group_id):
+        data.log_add(group_id, result)
     await matcher.finish(result)
 
 
@@ -135,9 +107,14 @@ async def make_card_handle(matcher: Matcher, event: GroupMessageEvent):
     msg = event.message.extract_plain_text()[3:].replace(' ', '').lower()
     user_id = event.user_id
     if msg == 'clear':
-        cards.clear_card(user_id)
+        data.delete_card(user_id)
         await matcher.finish("已清除您的数据！")
-    cards.set_card(user_id, msg)
+    find: list[tuple[str, int]] = findall(r"(\D{2,4})(\d{1,3})", msg)
+    attrs: dict[str, int] = {}
+    for i in find:
+        a, b = i
+        attrs[str(a)] = int(b)
+    data.set_card(user_id, attrs)
     await matcher.finish("已录入您的车卡数据！")
 
 
@@ -146,20 +123,23 @@ async def log_handle(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
     msg = event.message.extract_plain_text()[4:].strip().lower()
     group_id = event.group_id
     if msg == 'on':
-        logs.log_on(group_id)
+        data.open_log(group_id)
         await matcher.finish("已开启记录日志")
     if msg == 'off':
-        logs.log_off(group_id)
+        data.close_log(group_id)
         await matcher.finish("已关闭记录日志")
     if msg == 'upload':
-        file = logs.log_upload(group_id)
+        with open(plugin_config.cache_file, 'w', encoding='utf-8') as f:
+            for i in data.get_log(group_id).msg:
+                f.write(f"{i}\n")
+        file = Path(plugin_config.cache_file).absolute().as_posix()
         try:
             await bot.upload_group_file(group_id=group_id, file=file, name=f'logs-{event.message_id}.txt')
         except:
             await matcher.finish("上传群文件失败，请检查橘子的权限。")
         await matcher.finish("已上传至群文件")
     if msg == 'clear':
-        logs.log_clear(group_id)
+        data.delete_log(group_id)
         await matcher.finish("已清除此群之前的所有日志信息")
     else:
         await matcher.finish("不清楚你想干什么~")
@@ -170,5 +150,5 @@ async def log_msg_handle(event: GroupMessageEvent):
     group_id = event.group_id
     msg = event.message.extract_plain_text()
     name = event.sender.card if event.sender.card else event.sender.nickname
-    if logs.is_loging(group_id):
-        logs.log_add_message(group_id, f'[{name}] {msg}')
+    if data.is_logging(group_id):
+        data.log_add(group_id, f'[{name}] {msg}')
