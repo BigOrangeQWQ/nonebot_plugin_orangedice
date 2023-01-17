@@ -3,6 +3,7 @@ from os.path import exists
 from json import dump, load
 from re import findall
 from nonebot import get_driver
+from typing import Dict
 
 from .config import Config
 
@@ -12,12 +13,12 @@ plugin_config = Config.parse_obj(get_driver().config)
 class Card:
 
     def __init__(self) -> None:
-        self._cache_player_: dict[str, dict[str, int]] = {}
+        self._cache_player_: dict[str, Dict[str, int]] = {}
         """
         {"user_id": {"san": 50 ...}}
         """
 
-    def get_card(self, user_id: int) -> dict[str, int]:
+    def get_card(self, user_id: int) -> Dict[str, int]:
         """获取车卡数据
 
         Args:
@@ -57,7 +58,7 @@ class Card:
     def read_json(self):
         if exists(plugin_config.card_file):
             with open(plugin_config.card_file, 'r', encoding='utf-8') as f:
-                self._cache_player_: dict[str, dict[str, int]] = load(f)
+                self._cache_player_: Dict[str, Dict[str, int]] = load(f)
         else:
             self.save_json()
 

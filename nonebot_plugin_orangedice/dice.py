@@ -5,7 +5,7 @@
 
 from enum import Enum
 from random import randint
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 
 class TokenType(Enum):
@@ -128,7 +128,7 @@ class Parser:
         self.token = self.next_token
         self.next_token = self.tokens.get_next()
         
-    def _accept(self, type: TokenType):
+    def _accept(self, type: TokenType) -> bool:
         """
         是否接收到指定类型的令牌
         接收到指定令牌，令牌前进一步
@@ -151,7 +151,7 @@ class Parser:
         """随机数"""
         return randint(start,end)
         
-    def expr(self):
+    def expr(self) -> Union[int,float]:
         """expr ::= expr | expr '+' term  | expr '-' term  | term"""
         left = self.term() #左值
         while self._accept(TokenType.PLUS) or self._accept(TokenType.MINUS):
@@ -163,7 +163,7 @@ class Parser:
                 left -= right 
         return left
     
-    def term(self):
+    def term(self) -> Union[int,float]:
         """term ::= term | term '*' dice| term 'x' dice | term '/' dice | dice"""
         left = self.dice() #左值
         while self._accept(TokenType.MUL) or self._accept(TokenType.DIV):
@@ -175,7 +175,7 @@ class Parser:
                 left /= right 
         return left
     
-    def dice(self):
+    def dice(self) -> Union[int,float]:
         """
         dice ::=  dice 'd' atom ['k'|'q'] atom ['p'|'b'] atom ['a'] atom | atom
         """
@@ -213,7 +213,7 @@ class Parser:
             return sum(_cache)
         return result
     
-    def atom(self) -> float|int:
+    def atom(self) -> Union[float,int]:
         """
         atom ::= digit | ('+'|"-") atom | '(' expr ')'
         """

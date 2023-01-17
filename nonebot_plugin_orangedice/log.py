@@ -1,18 +1,18 @@
 from os.path import exists
 from json import load, dump
 from pathlib import Path
-from typing import TypedDict
+from typing import TypedDict, List, Dict
 from nonebot import get_driver
 
 from .config import Config
 
-LogType = TypedDict('Log', {'msg': list[str], 'log': bool})
+LogType = TypedDict('Log', {'msg': List[str], 'log': bool})
 plugin_config = Config.parse_obj(get_driver().config)
 
 class Log:
 
     def __init__(self) -> None:
-        self._cache_log_: dict[str, LogType] = {}
+        self._cache_log_: Dict[str, LogType] = {}
         """
         {"group_id": {'msgs': ['msg'], 'log': bool}}
 

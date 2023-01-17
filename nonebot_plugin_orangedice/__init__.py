@@ -31,28 +31,20 @@ cards = Card()
 logs = Log()
 
 
-
 async def load_cache():
     """
     加载缓存文件
     """
-    if plugin_config.save_type.lower() == 'file':
-        cards.read_json()
-        logs.read_json()
-    if plugin_config.save_type.lower() == 'sqlite':
-        # TODO:
-        ...
+    cards.read_json()
+    logs.read_json()
+
 
 async def save_cache():
     """
     储存缓存文件
     """
-    if plugin_config.save_type.lower() == 'file':
-        cards.save_json()
-        logs.save_json()
-    if plugin_config.save_type.lower() == 'sqlite':
-        # TODO:
-        ...
+    cards.save_json()
+    logs.save_json()
 
 driver.on_startup(load_cache)
 driver.on_shutdown(save_cache)
