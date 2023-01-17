@@ -8,9 +8,8 @@
 pip install nonebot_plugin_orangedice 
 nb plugin install nonebot_plugin_orangedice
 ```
-
-请Python3.8下载0.2.0版本  
-其他版本停止3.8版本的维护工作  
+注：0.2.0的版本为文件储存  
+请因为SQLModel依赖导致冲突的用户下载此版本  
 ```
 nb plugin install nonebot_plugin_orangedice==0.2.0
 ```
