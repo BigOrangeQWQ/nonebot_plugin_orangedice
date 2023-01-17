@@ -1,3 +1,4 @@
+import json
 from nonebot import get_driver
 from sqlmodel import Field, SQLModel, create_engine,\
     select, Session
@@ -13,7 +14,7 @@ class Player(SQLModel, table=True):
 class GroupLOG(SQLModel, table=True):
     group_id: int = Field(primary_key=True)
     log: bool
-    msg: list[str]
+    msg: str
 
 
 class DataContainer:
@@ -54,7 +55,7 @@ class DataContainer:
                 session.delete(player)
                 session.commit()
 
-    def get_log(self, group_id: int, default: GroupLOG = GroupLOG(group_id=123456, log=False, msg=[])) -> GroupLOG:
+    def get_log(self, group_id: int, default: GroupLOG = GroupLOG(group_id=123456, log=False, msg='')) -> GroupLOG:
         with Session(self.engine) as session:
             statement = select(GroupLOG).where(GroupLOG.group_id == group_id)
             log = session.exec(statement).first()
@@ -68,10 +69,10 @@ class DataContainer:
             logs = session.exec(statement).first()
             if logs:
                 logs.log = log
-                logs.msg = msg
+                logs.msg = str(msg)
                 session.add(log)
             else:
-                logs = GroupLOG(group_id=group_id, log=log, msg=msg)
+                logs = GroupLOG(group_id=group_id, log=log, msg=str(msg))
                 session.add(log)
             session.commit()
 
@@ -99,7 +100,7 @@ class DataContainer:
                 log.log = True
                 session.add(log)
             else:
-                log = GroupLOG(group_id=group_id, log=True, msg=[])
+                log = GroupLOG(group_id=group_id, log=True, msg='')
                 session.add(log)
             session.commit()
 
@@ -111,7 +112,7 @@ class DataContainer:
                 log.log = False
                 session.add(log)
             else:
-                log = GroupLOG(group_id=group_id, log=False, msg=[])
+                log = GroupLOG(group_id=group_id, log=False, msg='')
                 session.add(log)
             session.commit()
 
@@ -120,9 +121,11 @@ class DataContainer:
             statement = select(GroupLOG).where(GroupLOG.group_id == group_id)
             log = session.exec(statement).first()
             if log:
-                log.msg.append(msg)
+                a = json.loads(log.msg)
+                a.append(msg)
+                log.msg = str(a)
                 session.add(log)
             else:
-                log = GroupLOG(group_id=group_id, log=False, msg=[msg])
+                log = GroupLOG(group_id=group_id, log=False, msg=f'[{msg}]')
                 session.add(log)
             session.commit()
