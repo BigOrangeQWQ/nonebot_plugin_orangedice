@@ -20,11 +20,11 @@ __plugin_meta__ = PluginMetadata(
     ".log on/off/upload/clear 日志功能开启/关闭/上传/清除")
 
 MANAGER = GROUP_ADMIN | GROUP_OWNER
-roll = on_startswith(".r", priority=5)  # roll点
-log = on_startswith(".log", permission=MANAGER, priority=5)  # 日志相关指令
-log_msg = on_message(priority=6)  # 记录日志
-card = on_startswith(".st", priority=5)  # 作成人物卡
-roll_card = on_startswith(".ra", priority=4)  # 人物技能roll点
+roll = on_startswith(".r", priority=5, block=False)  # roll点
+log = on_startswith(".log", permission=MANAGER, priority=5, block=False)  # 日志相关指令
+log_msg = on_message(priority=6, block=False)  # 记录日志
+card = on_startswith(".st", priority=5, block=False)  # 作成人物卡
+roll_card = on_startswith(".ra", priority=4, block=False)  # 人物技能roll点
 
 driver = get_driver()
 plugin_config = Config.parse_obj(driver.config)
