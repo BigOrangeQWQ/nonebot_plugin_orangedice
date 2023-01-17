@@ -7,6 +7,7 @@ from nonebot.plugin import on_startswith, on_message, PluginMetadata
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, GROUP_ADMIN, GROUP_OWNER, Bot, escape
 
 from nonebot_plugin_orangedice.model import DataContainer
+from nonebot_plugin_orangedice.utils import get_attrs
 
 from .config import Config
 from .roll import RA, RD
@@ -29,6 +30,7 @@ roll_card = on_startswith(".ra", priority=4)  # 人物技能roll点
 driver = get_driver()
 plugin_config = Config.parse_obj(driver.config)
 data = DataContainer()
+
 
 @roll.handle()
 async def roll_handle(matcher: Matcher, event: GroupMessageEvent):
@@ -76,7 +78,7 @@ async def roll_card_handle(matcher: Matcher, event: GroupMessageEvent):
     """
     user_id = event.user_id
     group_id = event.group_id
-    card = data.get_card(user_id).skills
+    card = get_attrs(data.get_card(user_id).skills)
     msg = event.message.extract_plain_text()[3:].replace(' ', '').lower()
     name = event.sender.card if event.sender.card else event.sender.nickname
     # 正则匹配
@@ -109,12 +111,7 @@ async def make_card_handle(matcher: Matcher, event: GroupMessageEvent):
     if msg == 'clear':
         data.delete_card(user_id)
         await matcher.finish("已清除您的数据！")
-    find: list[tuple[str, int]] = findall(r"(\D{2,4})(\d{1,3})", msg)
-    attrs: dict[str, int] = {}
-    for i in find:
-        a, b = i
-        attrs[str(a)] = int(b)
-    data.set_card(user_id, attrs)
+    data.set_card(user_id, msg)
     await matcher.finish("已录入您的车卡数据！")
 
 
