@@ -2,7 +2,7 @@
 
 [project]
 name = "nonebot_plugin_orangedice"
-version = "0.2.0"
+version = "0.2.2"
 description = "A COC dice for nonebot2"
 authors = [
     {name = "BigOrangeQWQ", email = "2284086963@qq.com"},
