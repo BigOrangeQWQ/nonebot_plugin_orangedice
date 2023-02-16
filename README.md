@@ -1,7 +1,14 @@
+<div align="center">
+
 # NoneBot Plugin Orangedice
 
 一个普通的COC骰子插件  
 真的不点个Star吗？  
+<a href="https://pypi.python.org/pypi/nonebot-plugin-orangedice">
+    <img src="https://img.shields.io/pypi/dm/nonebot-plugin-orangedice?style=for-the-badge" alt="Download">
+</a>
+
+</div>
 
 
 ## 使用方法
