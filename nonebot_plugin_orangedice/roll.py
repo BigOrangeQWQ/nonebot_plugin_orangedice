@@ -1,7 +1,7 @@
 """
 骰点相关，使用onedice协议
 """
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
 
 from .dice import Lexer, Parser
 
@@ -53,7 +53,7 @@ def RA(player_name: Optional[str], item: str, attr: Optional[int], card: Dict[st
     attrs = attr if attr is not None else attrs
     result: int = random()
     msg = '失败~'
-    if (result > 95):
+    if (result > 96):
         msg = "大失败~"
     if (result < attrs):
         msg = '成功！'
@@ -61,8 +61,25 @@ def RA(player_name: Optional[str], item: str, attr: Optional[int], card: Dict[st
         msg = '困难成功！'
     if (result < attrs*0.2):
         msg = "极限成功！"
-    if (result < 5):
+    if (result < 4):
         msg = "大成功！！"
     if (result == 0):
         return f'{player_name}没有这个属性'
     return f"{player_name}[{attrs}]进行了[{item}]检定1D100={result} {msg}"
+
+def SC(player_name: str , san: int, fdice: str, sdice: str) -> Tuple[str, int]:
+    """理智检定返回骰点信息
+
+    Args:
+        player_name (str): 玩家名字
+        san (int): 理智值
+        fdice (str): 失败检定表达式
+        sdice (str): 成功检定表达式
+        
+    Returns:
+        str, int: 检定结果, 损失理智值
+    """
+    result: int = random() 
+    msg = '失败~' if result > san else '成功！'
+    drop_san = random(fdice) if result > san else random(sdice)
+    return f"{player_name}进行了理智检定1D100={result} {msg}\n损失{drop_san}理智值 剩余理智值{san-drop_san}", drop_san

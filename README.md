@@ -9,10 +9,10 @@
 pip install nonebot_plugin_orangedice 
 nb plugin install nonebot_plugin_orangedice
 ```
-注：0.2.0的版本的储存方式为文件储存  
+注：0.2.2的版本的储存方式为文件储存  
 请因为SQLModel依赖导致冲突的用户下载此版本  
 ```
-nb plugin install nonebot_plugin_orangedice==0.2.0
+nb plugin install nonebot_plugin_orangedice==0.2.2
 ```
 ## 可选配置
 

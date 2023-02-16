@@ -25,7 +25,6 @@ class TokenType(Enum):
 
 
 class Token:
-    """令牌"""
 
     def __init__(self, type: TokenType, value: Any) -> None:
         self.value = value
@@ -128,14 +127,14 @@ class Parser:
         self._advance()  # 初始化
 
     def _advance(self):
-        """获得下一个令牌"""
+        """获得下一个Token"""
         self.token = self.next_token
         self.next_token = self.tokens.get_next()
 
     def _accept(self, type: TokenType) -> bool:
         """
-        是否接收到指定类型的令牌
-        接收到指定令牌，令牌前进一步
+        是否接收到指定类型的Token
+        接收到指定Token,前进一步
         """
         if self.next_token and self.next_token.type == type:
             self._advance()  # 前进一步
@@ -145,7 +144,7 @@ class Parser:
 
     def _expect(self, type: TokenType):
         """
-        下一个令牌为某Type
+        指定下一个Token的类型为Type
         若不为则丢出SyntaxError报错
         """
         if not self._accept(type):
@@ -187,7 +186,7 @@ class Parser:
         while self._accept(TokenType.DICE):
             right = self.atom()
             _cache = [self._random(1, int(right))
-                      for i in range(0, int(left))]  # 储存骰子结果
+                    for i in range(0, int(left))]  # 储存骰子结果
             result = 0
             # 选取线 k大 q小
             if self._accept(TokenType.DICE_LEVEL):
@@ -253,32 +252,28 @@ class Num(AST):
 
 
 class DiceOP(AST):
-    def __init__(self, left: int, op: Token, right: int,
-                op2: Optional[Token], right2: Optional[Token],
-                op3: Optional[Token], right3: Optional[Token],
-                op4: Optional[Token], right4: Optional[Token]):
+    def __init__(self, left: int, op: Token, right: int, right2: Optional[Token],right3: Optional[Token], right4: Optional[Token]):
         """骰子运算
 
         Args:
             left (int): A
-            op (Token): 'd'
+            op (Token): d|k|q|p|b|a
             right (int): B
-            op2 (Token): 'k'|'q'
             right2 (int): C
-            op3 (Token): 'p'|'b'
             right3 (int): D
-            op4 (Token): 'a'
             right4 (int): E
+        //maybe有更好的方案
         """
         self.left = left
         self.token = self.op = op
         self.right = right
-        self.op2 = op2
 
 
 class Interpreter:
     """解释器"""
-    ...
+    
+    def visit(self, node ):
+        ...
 
 # ——TEST——
 # args = [

@@ -1,3 +1,8 @@
+"""
+一系列暴力的数据库操作
+这还需要优化。
+"""
+
 import json
 from typing import List
 from nonebot import get_driver
