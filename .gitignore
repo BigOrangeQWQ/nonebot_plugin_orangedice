@@ -1,3 +1,5 @@
-.pdm.toml
 dist/
 build/
+.venv/
+.pdm.toml
+pdm.lock

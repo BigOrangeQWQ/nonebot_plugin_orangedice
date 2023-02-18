@@ -16,6 +16,7 @@
 pip install nonebot_plugin_orangedice 
 nb plugin install nonebot_plugin_orangedice
 ```
+
 注：0.2.2的版本的储存方式为文件储存  
 请因为SQLModel依赖导致冲突的用户下载此版本  
 ```
@@ -31,7 +32,7 @@ CACHE_FILE=cache.json #缓存文件位置
 ```
 
 ```
-#version>=0.2.1
+#version>=0.3.0
 CACHE_FILE=cache.txt # 缓存文件位置
 SQLITE_FILE=DICE.db #数据库位置
 ```
@@ -46,6 +47,7 @@ SQLITE_FILE=DICE.db #数据库位置
 - .log off          关闭日志记录功能
 - .log upload       上传日志至群文件
 - .log clear        清除此群日志
+- .sc[公式A]/[公式B] ([san]) 进行sancheck检定，成功执行公式A，失败执行公式B (san值需要人物卡或自己提供)
 
 ## 参考项目(让我学习许多Owo)
 

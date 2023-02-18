@@ -2,7 +2,7 @@ from re import findall
 from typing import Dict, Self
 from nonebot.adapters.onebot.v11 import MessageEvent, GroupMessageEvent
 
-from nonebot_plugin_orangedice.model import DataContainer
+from .model import DataContainer
 
 class Attribute:
     """属性类"""

@@ -17,8 +17,7 @@ __plugin_meta__ = PluginMetadata(
     ".ra[属性] 属性骰点"
     ".st[属性][数值]/clear 人物卡录入/清除"
     ".log on/off/upload/clear 日志功能开启/关闭/上传/清除"
-    ".sc[失败损失]/[成功损失] ([理智值]) 理智检定[支持公式，不支持除法运算符]"
-    "")
+    ".sc[失败损失]/[成功损失] ([理智值]) 理智检定[不支持除法运算符]")
 
 MANAGER = GROUP_ADMIN | GROUP_OWNER
 roll = on_startswith(".r", priority=5)  # roll点 阻断
@@ -51,8 +50,8 @@ async def roll_handle(matcher: Matcher, event: MessageEvent):
         [in].rd测试50
         [error out]进行了检定1D100=0
     """
-    msg = event.message.extract_plain_text()[2:].replace(' ', '').lower()
-    name = event.sender.card if event.sender.card else event.sender.nickname
+    msg: str = event.message.extract_plain_text()[2:].replace(' ', '').lower()
+    name: str = get_name(event)
     matches = search(r"\D{1,100}", msg)
     if matches is None:
         result = RD(name, msg)
