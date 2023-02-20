@@ -6,7 +6,7 @@ from nonebot.plugin import on_startswith, on_message, PluginMetadata
 from nonebot.adapters.onebot.v11 import GroupMessageEvent,GROUP_ADMIN, GROUP_OWNER, Bot, MessageEvent
 
 from .model import DataContainer
-from .utils import Attribute, join_log_msg, get_name
+from .utils import Attribute, get_msg, join_log_msg, get_name
 from .config import Config
 from .roll import RA, RD, SC
 
@@ -20,13 +20,17 @@ __plugin_meta__ = PluginMetadata(
     ".sc[失败损失]/[成功损失] ([理智值]) 理智检定[不支持除法运算符]")
 
 MANAGER = GROUP_ADMIN | GROUP_OWNER
-roll = on_startswith(".r", priority=5)  # roll点 阻断
-log = on_startswith(".log", permission=MANAGER, priority=5)  # 日志相关指令 阻断
-card = on_startswith(".st", priority=5)  # 作成人物卡 阻断
-roll_card = on_startswith(".ra", priority=4)  # 人物技能roll点 阻断
-sancheck = on_startswith(".sc", priority=5)  #理智检定 阻断
 
-log_msg = on_message(priority=1, block=False)  # 记录日志 不阻断
+# -> 阻断响应器
+roll = on_startswith(".r", priority=5)  # roll点 
+log = on_startswith(".log", permission=MANAGER, priority=5)  # 日志相关指令 
+card = on_startswith(".st", priority=5)  #人物卡录入
+roll_card = on_startswith(".ra", priority=4)  #人物技能roll点 
+sancheck = on_startswith(".sc", priority=5)  #理智检定 
+roll_p = on_startswith(".rh", priority=5) #暗骰 
+
+# -> 非阻断响应器
+log_msg = on_message(priority=1, block=False)  # 记录日志 
 
 driver = get_driver()
 plugin_config = Config.parse_obj(driver.config)
@@ -50,7 +54,7 @@ async def roll_handle(matcher: Matcher, event: MessageEvent):
         [in].rd测试50
         [error out]进行了检定1D100=0
     """
-    msg: str = event.message.extract_plain_text()[2:].replace(' ', '').lower()
+    msg: str = get_msg(event, 2)
     name: str = get_name(event)
     matches = search(r"\D{1,100}", msg)
     if matches is None:
@@ -76,9 +80,10 @@ async def roll_card_handle(matcher: Matcher, event: MessageEvent):
         RA('name', 110, '测试', 100)
         [out]name[100]进行了[测试]检定1D100=result [msg]
     """
+    
     user_id = event.user_id
     card = Attribute(data.get_card(user_id).skills).attrs
-    msg = event.message.extract_plain_text()[3:].replace(' ', '').lower()
+    msg = get_msg(event, 3)
     name = event.sender.card if event.sender.card else event.sender.nickname
     # 正则匹配
     match_item = search(r"\D{1,100}", msg)  # 搜索 测试
@@ -106,7 +111,7 @@ async def make_card_handle(matcher: Matcher, event: GroupMessageEvent):
         [in].stsan60测试20
         fun(110, 'san60测试20')
     """
-    msg = event.message.extract_plain_text()[3:].replace(' ', '').lower()
+    msg = get_msg(event, 3)
     user_id = event.user_id
     if msg == 'clear':
         data.delete_card(user_id)
@@ -118,7 +123,7 @@ async def make_card_handle(matcher: Matcher, event: GroupMessageEvent):
 
 @log.handle()
 async def log_handle(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
-    msg = event.message.extract_plain_text()[4:].strip().lower()
+    msg = get_msg(event, 4)
     group_id = event.group_id
     if msg == 'on':
         data.open_log(group_id)
@@ -148,7 +153,7 @@ async def sancheck_handle(matcher: Matcher, event: MessageEvent):
     """
     处理理智检定
     """
-    msg = event.message.extract_plain_text()[3:].strip().lower()
+    msg = get_msg(event, 3)
     attr = Attribute(data.get_card(event.user_id).skills)
     user_id = event.user_id
     match = search(r"(\S{1,100})\/(\S{1,100})", msg)
@@ -163,7 +168,6 @@ async def sancheck_handle(matcher: Matcher, event: MessageEvent):
     join_log_msg(data, event, result) # JOIN LOG MSG
     
     await matcher.finish(result)
-    
 
 
 @log_msg.handle()
@@ -173,3 +177,11 @@ async def log_msg_handle(event: GroupMessageEvent):
     name = event.sender.card if event.sender.card else event.sender.nickname
     if data.is_logging(group_id):
         data.log_add(group_id, f'[{name}] {msg}')
+
+
+@roll_p.handle()
+async def private_roll(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
+    msg = event.message.extract_plain_text()[3:].strip().lower()
+    name = get_name(event)
+    await bot.send_private_msg(user_id = event.user_id, message=RD(name, msg))
+    await matcher.finish(f"{name} 进行了一次暗骰~")

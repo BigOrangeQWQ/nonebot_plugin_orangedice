@@ -55,3 +55,6 @@ def get_name(event: MessageEvent) -> str:
     a = event.sender.card if event.sender.card else event.sender.nickname
     return a if a else "PL"
 
+def get_msg(event: MessageEvent, index: int) -> str:
+    return event.message.extract_plain_text()[index:].replace(' ', '').lower()
+    
