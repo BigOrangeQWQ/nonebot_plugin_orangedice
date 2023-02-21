@@ -1,5 +1,6 @@
 from re import findall
-from typing import Dict, Self
+from typing import Dict
+from typing_extensions import Self
 from nonebot.adapters.onebot.v11 import MessageEvent, GroupMessageEvent
 
 from .model import DataContainer
@@ -56,5 +57,5 @@ def get_name(event: MessageEvent) -> str:
     return a if a else "PL"
 
 def get_msg(event: MessageEvent, index: int) -> str:
+    """获取消息"""
     return event.message.extract_plain_text()[index:].replace(' ', '').lower()
-    
