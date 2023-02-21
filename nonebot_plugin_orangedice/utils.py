@@ -30,19 +30,20 @@ class Attribute:
         self.attrs.update(self.get_attrs(attrs))
         return self
         
-    def to_str(self) -> str:
-        return str(self)
 
     def get(self, attr: str) -> int:
         """获取属性值"""
         return self.attrs.get(attr, 0)
 
-    def __str__(self, msg: Dict[str, int]) -> str:
+    def __str__(self) -> str:
         """将玩家的车卡数据转换为字符串"""
         attrs = ""
-        for i in msg:
-            attrs += f"{i}{msg[i]}\n"
+        for i in self.attrs:
+            attrs += f"{i}{self.attrs[i]}"
         return attrs
+    
+    def to_str(self) -> str:
+        return self.__str__()
 
 def join_log_msg(data: DataContainer, event: MessageEvent, msg: str):
     """拼接日志消息"""

@@ -28,9 +28,9 @@ log = on_startswith(".log", permission=MANAGER, priority=5)  #日志相关指令
 card = on_startswith(".st", priority=5)  #人物卡录入
 roll_card = on_startswith(".ra", priority=4)  #人物技能roll点
 sancheck = on_startswith(".sc", priority=5)  #理智检定
-roll_p = on_startswith(".rh", priority=5)  #暗骰
+roll_p = on_startswith(".rh", priority=4)  #暗骰
 show = on_startswith(".show", priority=5)  #展示人物卡
-insane_list = on_startswith(".list") #获取所有疯狂表
+insane_list = on_startswith(".list",priority=5) #获取所有疯狂表
 temp_insane = on_startswith(".ti", priority=5)  # 临时疯狂表
 forever_insane = on_startswith(".li", priority=5)  # 永久疯狂表
 
