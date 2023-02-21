@@ -193,7 +193,7 @@ async def log_msg_handle(event: GroupMessageEvent):
 
 
 @roll_p.handle()
-async def private_roll(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
+async def private_roll_handle(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
     """
     1D100暗骰指令
     """
@@ -208,7 +208,7 @@ async def private_roll(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
 
 
 @show.handle()
-async def show_card(event: MessageEvent):
+async def show_card_handle(event: MessageEvent):
     user_id = event.user_id
     card = Attribute(data.get_card(user_id).skills).to_str()
     msg = f"你的车卡数据如下：\n{card}"
@@ -216,12 +216,13 @@ async def show_card(event: MessageEvent):
 
 
 @insane_list.handle()
-async def show_insane_list(event: MessageEvent, matcher: Matcher):
+async def show_insane_list_handle(event: MessageEvent, matcher: Matcher):
     need = get_msg(event, 4)
     if need == 'temp':
         await matcher.finish("\n".join(crazy_temp))
     if need == 'forever':
         await matcher.finish("\n".join(crazy_forever))
+    
     
 # @temp_insane.handle()
 # async def get_temp_insane(event: MessageEvent, matcher: Matcher):

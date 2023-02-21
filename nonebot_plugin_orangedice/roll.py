@@ -83,3 +83,5 @@ def SC(player_name: str , san: int, fdice: str, sdice: str) -> Tuple[str, int]:
     msg = '失败~' if result > san else '成功！'
     drop_san = random(fdice) if result > san else random(sdice)
     return f"{player_name}进行了理智检定1D100={result} {msg}\n损失{drop_san}理智值 剩余理智值{san-drop_san}", drop_san
+
+
