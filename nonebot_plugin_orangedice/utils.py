@@ -5,9 +5,10 @@ from nonebot.adapters.onebot.v11 import MessageEvent, GroupMessageEvent
 
 from .model import DataContainer
 
+
 class Attribute:
     """属性类"""
-    
+
     def __init__(self, args: str):
         self.attrs = self.get_attrs(args)
 
@@ -19,17 +20,16 @@ class Attribute:
             a, b = i
             attrs[str(a)] = int(b)
         return attrs
-    
+
     def set_attr(self, attr: str, value: int) -> Self:
         """设置属性值"""
         self.attrs[attr] = value
         return self
-        
+
     def extend_attrs(self, attrs: str) -> Self:
         """扩展属性"""
         self.attrs.update(self.get_attrs(attrs))
         return self
-        
 
     def get(self, attr: str) -> int:
         """获取属性值"""
@@ -41,9 +41,10 @@ class Attribute:
         for i in self.attrs:
             attrs += f"{i}{self.attrs[i]}"
         return attrs
-    
+
     def to_str(self) -> str:
         return self.__str__()
+
 
 def join_log_msg(data: DataContainer, event: MessageEvent, msg: str):
     """拼接日志消息"""
@@ -51,11 +52,13 @@ def join_log_msg(data: DataContainer, event: MessageEvent, msg: str):
         group_id = event.group_id
         if data.is_logging(group_id):
             data.log_add(group_id, msg)
-            
+
+
 def get_name(event: MessageEvent) -> str:
     """获取玩家昵称"""
     a = event.sender.card if event.sender.card else event.sender.nickname
     return a if a else "PL"
+
 
 def get_msg(event: MessageEvent, index: int) -> str:
     """获取消息"""
