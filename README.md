@@ -39,9 +39,23 @@ SQLITE_FILE=DICE.db #数据库位置
 
 ## 指令集
 
-普通的骰点，格式为[onedice标准](https://github.com/OlivOS-Team/onedice)内COC骰子格式
+- [x] .r
+- [x] .rh
+- [x] .ra
+- [x] .st
+- [x] .li/ti
+- [x] .sc
+- [x] .log
+- [ ] .nn
+- [ ] .list
+- [ ] .coc
+- [ ] ...
+
+---
 
 ### RD 普通骰子
+普通的骰点，格式为[onedice标准](https://github.com/OlivOS-Team/onedice)内COC骰子格式
+
 ```
 .r[expr]
 
@@ -85,6 +99,15 @@ SQLITE_FILE=DICE.db #数据库位置
 
 .sc 1d8/1d3
 ```
+
+### TI/LI 疯狂检定
+获取一个临时/总结的疯狂发作症状
+```
+.li #随机获取疯狂发作-总结症状
+
+.ti #随机获取疯狂发作-临时症状
+```
+
 ### LOG 日志记录
 记录跑团/群聊日志，此功能需群管理/群主才可开启
 ```
@@ -98,7 +121,8 @@ SQLITE_FILE=DICE.db #数据库位置
 
 
 
-## 参考项目(让我学习许多Owo)
+## 相关与参考项目
 
-[OneDice](https://github.com/OlivOS-Team/onedice): Today, we stand as one.  
-[nonebot_plugin_cocdicer](https://github.com/abrahum/nonebot_plugin_cocdicer): A COC dice plugin for Nonebot2
+- [onedice](https://github.com/OlivOS-Team/onedice): Today, we stand as one.
+- [nonebot_plugin_cocdicer](https://github.com/abrahum/nonebot_plugin_cocdicer): A COC dice plugin for Nonebot2
+- [dice!](https://github.com/Dice-Developer-Team/Dice): QQ Dice Robot For TRPG
