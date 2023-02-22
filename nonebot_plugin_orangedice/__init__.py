@@ -1,5 +1,6 @@
 from pathlib import Path
 from re import search
+from random import choice, choices
 from nonebot import get_driver
 from nonebot.matcher import Matcher
 from nonebot.plugin import on_startswith, on_message, PluginMetadata
@@ -9,7 +10,7 @@ from .model import DataContainer
 from .utils import Attribute, get_msg, join_log_msg, get_name
 from .message import fear_list, crazy_forever, crazy_list, crazy_temp
 from .config import Config
-from .roll import RA, RD, SC
+from .roll import RA, RD, SC, random
 
 __plugin_meta__ = PluginMetadata(
     name="orange_dice",
@@ -223,7 +224,24 @@ async def show_insane_list_handle(event: MessageEvent, matcher: Matcher):
     if need == 'forever':
         await matcher.finish("\n".join(crazy_forever))
     
-    
-# @temp_insane.handle()
-# async def get_temp_insane(event: MessageEvent, matcher: Matcher):
-    
+@temp_insane.handle()
+async def get_temp_insane(event: MessageEvent, matcher: Matcher):
+    result = random("1d10")
+    if result == 9:
+        msg = choice(fear_list)
+    if result == 10:
+        msg = choice(crazy_list)
+    else:
+        msg = crazy_temp[result-1]
+    await matcher.finish(msg.replace("1D10", str(random("1d10"))))
+
+@forever_insane.handle()
+async def get_forever_insane(event: MessageEvent, matcher: Matcher):
+    result = random("1d10")
+    if result == 9:
+        msg = choice(fear_list)
+    if result == 10:
+        msg = choice(crazy_list)
+    else:
+        msg = crazy_forever[result-1]
+    await matcher.finish(msg.replace("1D10", str(random("1d10"))))
