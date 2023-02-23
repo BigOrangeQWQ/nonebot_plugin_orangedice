@@ -1,7 +1,8 @@
 from pathlib import Path
 from re import search
-from random import choice, choices
+from random import choice
 from nonebot import get_driver
+from nonebot.params import Depends
 from nonebot.matcher import Matcher
 from nonebot.plugin import on_startswith, on_message, PluginMetadata
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, GROUP_ADMIN, GROUP_OWNER, MessageEvent, Bot
@@ -34,8 +35,7 @@ show = on_startswith(".show", priority=5)  #展示人物卡
 insane_list = on_startswith(".list",priority=5) #获取所有疯狂表
 temp_insane = on_startswith(".ti", priority=5)  # 临时疯狂表
 forever_insane = on_startswith(".li", priority=5)  # 永久疯狂表
-
-
+coc_create = on_startswith(".coc", priority=5)  # 生成coc人物卡
 
 # -> 非阻断响应器
 log_msg = on_message(priority=1, block=False)  # 记录日志
@@ -47,7 +47,7 @@ data = DataContainer()
 
 
 @roll.handle()
-async def roll_handle(matcher: Matcher, event: MessageEvent):
+async def roll_handle(matcher: Matcher, event: MessageEvent, name: str = Depends(get_name)):
     """
     处理骰点检定
 
@@ -64,7 +64,6 @@ async def roll_handle(matcher: Matcher, event: MessageEvent):
         [error out]进行了检定1D100=0
     """
     msg: str = get_msg(event, 2)
-    name: str = get_name(event)
     matches = search(r"\D{1,100}", msg)
     if matches is None:
         result = RD(name, msg)
@@ -77,7 +76,7 @@ async def roll_handle(matcher: Matcher, event: MessageEvent):
 
 
 @roll_card.handle()
-async def roll_card_handle(matcher: Matcher, event: MessageEvent):
+async def roll_card_handle(matcher: Matcher, event: MessageEvent, name: str = Depends(get_name)):
     """处理玩家属性骰点
 
     Example:
@@ -93,7 +92,6 @@ async def roll_card_handle(matcher: Matcher, event: MessageEvent):
     user_id = event.user_id
     card = Attribute(data.get_card(user_id).skills).attrs
     msg = get_msg(event, 3)
-    name = event.sender.card if event.sender.card else event.sender.nickname
     # 正则匹配
     match_item = search(r"\D{1,100}", msg)  # 搜索 测试
 
@@ -245,3 +243,7 @@ async def get_forever_insane(event: MessageEvent, matcher: Matcher):
     else:
         msg = crazy_forever[result-1]
     await matcher.finish(msg.replace("1D10", str(random("1d10"))))
+    
+@coc_create.handle()
+async def create_coc_role(evnet: MessageEvent, matcher: Matcher):
+    ...
