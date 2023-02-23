@@ -8,7 +8,7 @@ from .model import DataContainer
 
 #将录卡的属性全部统一为第一个值
 #而后导出卡片时生成多个属性
-same_attr_list: Dict[str,Tuple] = {
+same_attr_list: Dict[str, Tuple] = {
     "力量": ("str",),
     "体质": ("con",),
     "体型": ("siz",),
@@ -94,8 +94,7 @@ def join_log_msg(data: DataContainer, event: MessageEvent, msg: str):
 
 def get_name(event: MessageEvent) -> str:
     """获取玩家昵称"""
-    a = event.sender.card if event.sender.card else event.sender.nickname
-    return a if a else "PL"
+    return event.sender.card if event.sender.card else (event.sender.nickname if event.sender.nickname else "PL")
 
 
 def get_msg(event: MessageEvent, index: int) -> str:

@@ -20,7 +20,11 @@ __plugin_meta__ = PluginMetadata(
     ".ra[属性] 属性骰点"
     ".st[属性][数值]/clear 人物卡录入/清除"
     ".log on/off/upload/clear 日志功能开启/关闭/上传/清除"
-    ".sc[失败损失]/[成功损失] ([理智值]) 理智检定[不支持除法运算符]")
+    ".sc[失败损失]/[成功损失] ([理智值]) 理智检定[不支持除法运算符]"
+    ".rh 暗骰"
+    ".show 展示人物卡"
+    ".ti/li 临时/永久疯狂表"
+    )
 
 MANAGER = GROUP_ADMIN | GROUP_OWNER
 
