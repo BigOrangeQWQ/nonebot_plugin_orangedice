@@ -48,14 +48,32 @@ SQLITE_FILE=DICE.db #数据库位置
 - [x] .sc
 - [x] .log
 - [ ] .nn
-- [ ] .list
-- [ ] .coc
-- [ ] ...
+- [x] .help
+- [x] .list
+- [x] .coc
+- [ ] .en
+- [x] .dao
 
 ---
 
+### HELP 获取帮助
+获取快捷的指令帮助
+```
+.help
+
+".r#expr(attr) 骰点"
+".ra(attr)(value) 属性骰点"
+".st(attr value)/clear 人物卡录入/清除"
+".log on/off/upload/clear 日志功能开启/关闭/上传/清除"
+".sc(success)/(failure) ([san]) 理智检定[不可使用除法]"
+".rh 暗骰"
+".show 展示人物卡"
+".ti/li 临时/永久疯狂检定"
+".coc(value) 生成coc人物卡"
+```
+
 ### RD 普通骰子
-普通的骰点，格式为[onedice标准](https://github.com/OlivOS-Team/onedice)内COC骰子格式
+普通的骰点，格式为 [onedice标准](https://github.com/OlivOS-Team/onedice) 内COC的骰子格式
 
 ```
 .r[expr]
@@ -92,7 +110,7 @@ SQLITE_FILE=DICE.db #数据库位置
 ```
 
 ### SC 理智检定
-进行 SanCheck 检定，自动扣除人物卡内的 san。  
+进行 **san check** 检定，自动扣除人物卡内的 san。  
 支持 **dice expr** 但不支持除法运算符。
 
 ```
@@ -109,6 +127,21 @@ SQLITE_FILE=DICE.db #数据库位置
 .ti #随机获取疯狂发作-临时症状
 ```
 
+### LIST 疯狂表
+获取临时/总结疯狂表
+```
+.list temp/forever
+```
+
+### COC 车卡
+基于COC7规则的属性随机生成
+每次至多生成三个角色
+```
+.coc[times]
+
+.coc3 #生成三个跑团角色属性卡
+```
+
 ### LOG 日志记录
 记录跑团/群聊日志，此功能需群管理/群主才可开启
 ```
@@ -120,7 +153,12 @@ SQLITE_FILE=DICE.db #数据库位置
 .log clear  #清空之前的日志
 ```
 
-
+### DAO 导出角色卡
+将角色卡导出来多次使用，与 SHOW 指令的区别为  
+SHOW 指令会排除一些重复属性，而 DAO 则会把所有属性全部导出
+```
+.dao
+```
 
 ## 相关与参考项目
 

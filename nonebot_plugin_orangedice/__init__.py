@@ -1,7 +1,9 @@
+from ast import MatchSequence
 from pathlib import Path
 from re import search
-from random import choice, choices
+from random import choice
 from nonebot import get_driver
+from nonebot.params import Depends
 from nonebot.matcher import Matcher
 from nonebot.plugin import on_startswith, on_message, PluginMetadata
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, GROUP_ADMIN, GROUP_OWNER, MessageEvent, Bot
@@ -10,32 +12,42 @@ from .model import DataContainer
 from .utils import Attribute, get_msg, join_log_msg, get_name
 from .message import fear_list, crazy_forever, crazy_list, crazy_temp
 from .config import Config
-from .roll import RA, RD, SC, random
+from .roll import COC, RA, RD, SC, random
 
 __plugin_meta__ = PluginMetadata(
     name="orange_dice",
     description="一个普通的COC用骰子",
-    usage=".r[公式] 骰点[onedice标准]"
-    ".ra[属性] 属性骰点"
-    ".st[属性][数值]/clear 人物卡录入/清除"
+    usage=".r#expr(attr) 骰点"
+    ".ra(attr)(value) 属性骰点"
+    ".st(attr value)/clear 人物卡录入/清除"
     ".log on/off/upload/clear 日志功能开启/关闭/上传/清除"
-    ".sc[失败损失]/[成功损失] ([理智值]) 理智检定[不支持除法运算符]")
+    ".sc(success)/(failure) ([san]) 理智检定[不可使用除法]"
+    ".rh 暗骰"
+    ".show 展示人物卡"
+    ".ti/li 临时/永久疯狂检定"
+    ".coc(value) 生成coc人物卡"
+)
 
 MANAGER = GROUP_ADMIN | GROUP_OWNER
 
+
 # -> 阻断响应器
-roll = on_startswith(".r", priority=5)  #roll点
-log = on_startswith(".log", permission=MANAGER, priority=5)  #日志相关指令
-card = on_startswith(".st", priority=5)  #人物卡录入
-roll_card = on_startswith(".ra", priority=4)  #人物技能roll点
-sancheck = on_startswith(".sc", priority=5)  #理智检定
-roll_p = on_startswith(".rh", priority=4)  #暗骰
-show = on_startswith(".show", priority=5)  #展示人物卡
-insane_list = on_startswith(".list",priority=5) #获取所有疯狂表
+log = on_startswith(".log", permission=MANAGER, priority=5)  # 日志相关指令
+help = on_startswith(".help", priority=5)  # 帮助
+#骰点相关
+roll = on_startswith(".r", priority=5)  # roll点
+roll_card = on_startswith(".ra", priority=4)  # 人物技能roll点
+sancheck = on_startswith(".sc", priority=5)  # 理智检定
+roll_p = on_startswith(".rh", priority=4)  # 暗骰
+#人物卡相关
+card = on_startswith(".st", priority=5)  # 人物卡录入
+show = on_startswith(".show", priority=5)  # 展示人物卡
+dao = on_startswith(".dao",priority=5) #人物卡导出
+coc_create = on_startswith(".coc", priority=5)  # 生成coc人物卡
+#疯狂检定相关
+insane_list = on_startswith(".list", priority=5)  # 获取所有疯狂表
 temp_insane = on_startswith(".ti", priority=5)  # 临时疯狂表
 forever_insane = on_startswith(".li", priority=5)  # 永久疯狂表
-
-
 
 # -> 非阻断响应器
 log_msg = on_message(priority=1, block=False)  # 记录日志
@@ -47,7 +59,7 @@ data = DataContainer()
 
 
 @roll.handle()
-async def roll_handle(matcher: Matcher, event: MessageEvent):
+async def roll_handle(matcher: Matcher, event: MessageEvent, name: str = Depends(get_name)):
     """
     处理骰点检定
 
@@ -64,12 +76,13 @@ async def roll_handle(matcher: Matcher, event: MessageEvent):
         [error out]进行了检定1D100=0
     """
     msg: str = get_msg(event, 2)
-    name: str = get_name(event)
-    matches = search(r"\D{1,100}", msg)
+    matches = search(
+        r"(\d|[d|a|k|q|p|+|\-|\*|\/|\(|\)|x]){1,1000}", msg)  # 匹配骰子公式
     if matches is None:
+
         result = RD(name, msg)
     else:
-        result = RD(name, msg.replace(matches.group(), ''), matches.group())
+        result = RD(name, matches.group(), msg.replace(matches.group(), ""))
 
     join_log_msg(data, event, result)  # JOIN LOG MSG
 
@@ -77,7 +90,7 @@ async def roll_handle(matcher: Matcher, event: MessageEvent):
 
 
 @roll_card.handle()
-async def roll_card_handle(matcher: Matcher, event: MessageEvent):
+async def roll_card_handle(matcher: Matcher, event: MessageEvent, name: str = Depends(get_name)):
     """处理玩家属性骰点
 
     Example:
@@ -93,7 +106,6 @@ async def roll_card_handle(matcher: Matcher, event: MessageEvent):
     user_id = event.user_id
     card = Attribute(data.get_card(user_id).skills).attrs
     msg = get_msg(event, 3)
-    name = event.sender.card if event.sender.card else event.sender.nickname
     # 正则匹配
     match_item = search(r"\D{1,100}", msg)  # 搜索 测试
 
@@ -133,6 +145,9 @@ async def make_card_handle(matcher: Matcher, event: GroupMessageEvent):
 
 @log.handle()
 async def log_handle(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
+    """
+    日志相关指令
+    """
     msg = get_msg(event, 4)
     group_id = event.group_id
     if msg == 'on':
@@ -210,6 +225,9 @@ async def private_roll_handle(matcher: Matcher, event: GroupMessageEvent, bot: B
 
 @show.handle()
 async def show_card_handle(event: MessageEvent):
+    """
+    展示人物卡数据
+    """
     user_id = event.user_id
     card = Attribute(data.get_card(user_id).skills).to_str()
     msg = f"你的车卡数据如下：\n{card}"
@@ -218,30 +236,67 @@ async def show_card_handle(event: MessageEvent):
 
 @insane_list.handle()
 async def show_insane_list_handle(event: MessageEvent, matcher: Matcher):
+    """
+    提供疯狂表
+    """
     need = get_msg(event, 4)
     if need == 'temp':
         await matcher.finish("\n".join(crazy_temp))
     if need == 'forever':
         await matcher.finish("\n".join(crazy_forever))
-    
+
+
 @temp_insane.handle()
 async def get_temp_insane(event: MessageEvent, matcher: Matcher):
+    """
+    临时疯狂检定
+    """
     result = random("1d10")
-    if result == 9:
-        msg = choice(fear_list)
-    if result == 10:
-        msg = choice(crazy_list)
+    if result == 9: 
+        msg = f"9) 恐惧:{choice(fear_list)},持续{random('1d10')}轮"
+    elif result == 10:
+        msg = f"10) 躁狂:{choice(crazy_list)},持续{random('1d10')}轮"
     else:
         msg = crazy_temp[result-1]
     await matcher.finish(msg.replace("1D10", str(random("1d10"))))
 
+
 @forever_insane.handle()
 async def get_forever_insane(event: MessageEvent, matcher: Matcher):
+    """
+    总结疯狂检定
+    """
     result = random("1d10")
     if result == 9:
-        msg = choice(fear_list)
-    if result == 10:
-        msg = choice(crazy_list)
+        msg = f"9) 恐惧:{choice(fear_list)}"
+    elif result == 10:
+        msg = f"10) 躁狂:{choice(crazy_list)}"
     else:
         msg = crazy_forever[result-1]
     await matcher.finish(msg.replace("1D10", str(random("1d10"))))
+
+
+@coc_create.handle()
+async def create_coc_role(event: MessageEvent, matcher: Matcher):
+    """
+    创建人物卡
+    """
+    value = int(get_msg(event, 4))
+    if value > 3:
+        value = 3
+    await matcher.finish("\n".join([COC() for i in range(value)]))
+
+
+@help.handle()
+async def help_send(event: MessageEvent, matcher: Matcher):
+    """
+    帮助信息
+    """
+    await matcher.finish(__plugin_meta__.usage)
+
+@dao.handle()
+async def dao_send(event: MessageEvent, matcher: Matcher):
+    """
+    导出角色卡
+    """
+    await matcher.finish(Attribute(data.get_card(event.user_id).skills).dao())
