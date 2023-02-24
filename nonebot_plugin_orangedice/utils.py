@@ -32,6 +32,7 @@ class Attribute:
 
     def __init__(self, args: str):
         self.attrs = self.get_attrs(args)
+        self.same = self.same_list()
 
     def get_attrs(self, msg: str) -> Dict[str, int]:
         """通过正则处理玩家的车卡数据，获取属性值"""
@@ -62,6 +63,10 @@ class Attribute:
 
     def get(self, attr: str) -> int:
         """获取属性值"""
+        if attr in self.same:
+            for k,v in same_attr_list.items():
+                if attr in v:
+                    return self.attrs.get(k, 0)
         return self.attrs.get(attr, 0)
     
     def dao(self) -> str:
@@ -72,6 +77,14 @@ class Attribute:
                 c+=f"{i}{self.get(k)}"
         return c
     
+    def same_list(self):
+        """将同义词并做一个集合"""
+        same = set()
+        for k,v in same_attr_list.items():
+            same.add(k)
+            same.update(v)
+        return same
+
     def to_str(self) -> str:
         return self.__str__()
 

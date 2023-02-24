@@ -68,11 +68,12 @@ async def roll_handle(matcher: Matcher, event: MessageEvent, name: str = Depends
         [error out]进行了检定1D100=0
     """
     msg: str = get_msg(event, 2)
-    matches = search(r"\D{1,100}", msg)
+    matches = search(r"(\d|[d|a|k|q|p|+|\-|\*|\/|\(|\)|x]){1,1000}", msg) #匹配骰子公式
     if matches is None:
+        
         result = RD(name, msg)
     else:
-        result = RD(name, msg.replace(matches.group(), ''), matches.group())
+        result = RD(name, matches.group(), msg.replace(matches.group(), ""))
 
     join_log_msg(data, event, result)  # JOIN LOG MSG
 
@@ -135,6 +136,9 @@ async def make_card_handle(matcher: Matcher, event: GroupMessageEvent):
 
 @log.handle()
 async def log_handle(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
+    """
+    日志相关指令
+    """
     msg = get_msg(event, 4)
     group_id = event.group_id
     if msg == 'on':
