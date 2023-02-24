@@ -84,4 +84,20 @@ def SC(player_name: str , san: int, fdice: str, sdice: str) -> Tuple[str, int]:
     drop_san = random(fdice) if result > san else random(sdice)
     return f"{player_name}进行了理智检定1D100={result} {msg}\n损失{drop_san}理智值 剩余理智值{san-drop_san}", drop_san
 
-
+def COC() -> str:
+    """
+    生成COC角色卡
+    
+    Returns:
+        str: 角色卡信息
+    """
+    STR = random('3d6')
+    CON = random('3d6')
+    SIZ = random('2d6+6')
+    DEX = random('3d6')
+    APP = random("3d6")
+    INT = random("2d6+6")
+    EDU = random("2d6+6")
+    POW = random("3d6")
+    LUC = random("3d6")
+    return f"力量{STR*5}体质{CON*5}体型{SIZ*5}敏捷{DEX*5}外貌{APP*5}智力{INT*5}教育{EDU*5}意志{POW*5}幸运{LUC*5}"

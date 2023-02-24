@@ -93,7 +93,6 @@ class Attribute:
         attrs = ""
         for k,v in self.attrs:
             attrs += f"{k}{v}"
-        
         return attrs
 
 
