@@ -51,7 +51,7 @@ SQLITE_FILE=DICE.db #数据库位置
 - [x] .list
 - [x] .coc
 - [ ] .en
-- [ ] .dao
+- [x] .dao
 
 ---
 
@@ -154,7 +154,7 @@ SQLITE_FILE=DICE.db #数据库位置
 
 ### DAO 导出角色卡
 将角色卡导出来多次使用，与 SHOW 指令的区别为  
-SHOW 指令会排除一些重复属性，而DAO则会把所有属性全部导出
+SHOW 指令会排除一些重复属性，而 DAO 则会把所有属性全部导出
 ```
 .dao
 ```

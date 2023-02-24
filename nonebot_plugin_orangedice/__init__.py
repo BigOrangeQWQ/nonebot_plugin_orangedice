@@ -252,10 +252,10 @@ async def get_temp_insane(event: MessageEvent, matcher: Matcher):
     临时疯狂检定
     """
     result = random("1d10")
-    if result == 9:
-        msg = choice(fear_list)
+    if result == 9: 
+        msg = f"9) 恐惧:{choice(fear_list)},持续{random('1d10')}轮"
     elif result == 10:
-        msg = choice(crazy_list)
+        msg = f"10) 躁狂:{choice(crazy_list)},持续{random('1d10')}轮"
     else:
         msg = crazy_temp[result-1]
     await matcher.finish(msg.replace("1D10", str(random("1d10"))))
@@ -268,9 +268,9 @@ async def get_forever_insane(event: MessageEvent, matcher: Matcher):
     """
     result = random("1d10")
     if result == 9:
-        msg = choice(fear_list)
+        msg = f"9) 恐惧:{choice(fear_list)}"
     elif result == 10:
-        msg = choice(crazy_list)
+        msg = f"10) 躁狂:{choice(crazy_list)}"
     else:
         msg = crazy_forever[result-1]
     await matcher.finish(msg.replace("1D10", str(random("1d10"))))
