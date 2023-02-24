@@ -275,16 +275,18 @@ class Interpreter:
     def visit(self, node ):
         ...
 
+
 # ——TEST——
 # args = [
-#         '2.2+3',
-#         '2+3*44.6',
+#         '2+3',
+#         '2+3*44',
 #         '2+(3+4)*2',
 #         '(((1)))',
 #         '1d5',
 #         '1d100a25',
 #         '3d100k3'
 #         ]
+
 # for i in args:
-#     parser = Parser(Lexer(i))
-#     print(parser.parse())
+#     parser = test(i)
+

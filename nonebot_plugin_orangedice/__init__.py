@@ -1,14 +1,16 @@
 from pathlib import Path
 from re import search
+from random import choice, choices
 from nonebot import get_driver
 from nonebot.matcher import Matcher
 from nonebot.plugin import on_startswith, on_message, PluginMetadata
-from nonebot.adapters.onebot.v11 import GroupMessageEvent,GROUP_ADMIN, GROUP_OWNER, Bot, MessageEvent
+from nonebot.adapters.onebot.v11 import GroupMessageEvent, GROUP_ADMIN, GROUP_OWNER, MessageEvent, Bot
 
 from .model import DataContainer
-from .utils import Attribute, join_log_msg, get_name
+from .utils import Attribute, get_msg, join_log_msg, get_name
+from .message import fear_list, crazy_forever, crazy_list, crazy_temp
 from .config import Config
-from .roll import RA, RD, SC
+from .roll import RA, RD, SC, random
 
 __plugin_meta__ = PluginMetadata(
     name="orange_dice",
@@ -20,14 +22,25 @@ __plugin_meta__ = PluginMetadata(
     ".sc[失败损失]/[成功损失] ([理智值]) 理智检定[不支持除法运算符]")
 
 MANAGER = GROUP_ADMIN | GROUP_OWNER
-roll = on_startswith(".r", priority=5)  # roll点 阻断
-log = on_startswith(".log", permission=MANAGER, priority=5)  # 日志相关指令 阻断
-card = on_startswith(".st", priority=5)  # 作成人物卡 阻断
-roll_card = on_startswith(".ra", priority=4)  # 人物技能roll点 阻断
-sancheck = on_startswith(".sc", priority=5)  #理智检定 阻断
 
-log_msg = on_message(priority=1, block=False)  # 记录日志 不阻断
+# -> 阻断响应器
+roll = on_startswith(".r", priority=5)  #roll点
+log = on_startswith(".log", permission=MANAGER, priority=5)  #日志相关指令
+card = on_startswith(".st", priority=5)  #人物卡录入
+roll_card = on_startswith(".ra", priority=4)  #人物技能roll点
+sancheck = on_startswith(".sc", priority=5)  #理智检定
+roll_p = on_startswith(".rh", priority=4)  #暗骰
+show = on_startswith(".show", priority=5)  #展示人物卡
+insane_list = on_startswith(".list",priority=5) #获取所有疯狂表
+temp_insane = on_startswith(".ti", priority=5)  # 临时疯狂表
+forever_insane = on_startswith(".li", priority=5)  # 永久疯狂表
 
+
+
+# -> 非阻断响应器
+log_msg = on_message(priority=1, block=False)  # 记录日志
+
+# -> 数据相关
 driver = get_driver()
 plugin_config = Config.parse_obj(driver.config)
 data = DataContainer()
@@ -50,16 +63,16 @@ async def roll_handle(matcher: Matcher, event: MessageEvent):
         [in].rd测试50
         [error out]进行了检定1D100=0
     """
-    msg: str = event.message.extract_plain_text()[2:].replace(' ', '').lower()
+    msg: str = get_msg(event, 2)
     name: str = get_name(event)
     matches = search(r"\D{1,100}", msg)
     if matches is None:
         result = RD(name, msg)
     else:
         result = RD(name, msg.replace(matches.group(), ''), matches.group())
-    
-    join_log_msg(data, event, result) # JOIN LOG MSG
-    
+
+    join_log_msg(data, event, result)  # JOIN LOG MSG
+
     await matcher.finish(result)
 
 
@@ -76,25 +89,27 @@ async def roll_card_handle(matcher: Matcher, event: MessageEvent):
         RA('name', 110, '测试', 100)
         [out]name[100]进行了[测试]检定1D100=result [msg]
     """
+
     user_id = event.user_id
     card = Attribute(data.get_card(user_id).skills).attrs
-    msg = event.message.extract_plain_text()[3:].replace(' ', '').lower()
+    msg = get_msg(event, 3)
     name = event.sender.card if event.sender.card else event.sender.nickname
     # 正则匹配
     match_item = search(r"\D{1,100}", msg)  # 搜索 测试
 
     if match_item is None:
         await matcher.finish('没有找到需要检定的属性')
-    else: 
-        match_num = search(r"\d{1,3}", msg.replace(match_item.group(),""))  # 搜索 测试100
+    else:
+        match_num = search(r"\d{1,3}", msg.replace(
+            match_item.group(), ""))  # 搜索 测试100
         if match_num is not None:
             result = RA(name, match_item.group(),
                         int(match_num.group()), card)
         else:
             result = RA(name, match_item.group(), None, card)
-            
-    join_log_msg(data, event, result) # JOIN LOG MSG
-    
+
+    join_log_msg(data, event, result)  # JOIN LOG MSG
+
     await matcher.finish(result)
 
 
@@ -106,7 +121,7 @@ async def make_card_handle(matcher: Matcher, event: GroupMessageEvent):
         [in].stsan60测试20
         fun(110, 'san60测试20')
     """
-    msg = event.message.extract_plain_text()[3:].replace(' ', '').lower()
+    msg = get_msg(event, 3)
     user_id = event.user_id
     if msg == 'clear':
         data.delete_card(user_id)
@@ -118,7 +133,7 @@ async def make_card_handle(matcher: Matcher, event: GroupMessageEvent):
 
 @log.handle()
 async def log_handle(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
-    msg = event.message.extract_plain_text()[4:].strip().lower()
+    msg = get_msg(event, 4)
     group_id = event.group_id
     if msg == 'on':
         data.open_log(group_id)
@@ -148,28 +163,85 @@ async def sancheck_handle(matcher: Matcher, event: MessageEvent):
     """
     处理理智检定
     """
-    msg = event.message.extract_plain_text()[3:].strip().lower()
+    msg = get_msg(event, 3)
     attr = Attribute(data.get_card(event.user_id).skills)
     user_id = event.user_id
     match = search(r"(\S{1,100})\/(\S{1,100})", msg)
-    sdice, fdice = "1" , "1d3"
+    sdice, fdice = "1", "1d3"
     if match is not None:
         sdice, fdice = match.group(1), match.group(2)
     if attr.get("san") == 0:
         await sancheck.finish("你没有理智属性")
     result, drop_san = SC(get_name(event), attr.get("san"), fdice, sdice)
-    data.set_card(user_id, attr.set_attr("san", attr.get("san") - drop_san).to_str())
-    
-    join_log_msg(data, event, result) # JOIN LOG MSG
-    
+    data.set_card(user_id, attr.set_attr(
+        "san", attr.get("san") - drop_san).to_str())
+
+    join_log_msg(data, event, result)  # JOIN LOG MSG
+
     await matcher.finish(result)
-    
 
 
 @log_msg.handle()
 async def log_msg_handle(event: GroupMessageEvent):
+    """
+    记录群聊信息
+    """
     group_id = event.group_id
     msg = event.message.extract_plain_text()
-    name = event.sender.card if event.sender.card else event.sender.nickname
+    name = get_name(event)
     if data.is_logging(group_id):
         data.log_add(group_id, f'[{name}] {msg}')
+
+
+@roll_p.handle()
+async def private_roll_handle(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
+    """
+    1D100暗骰指令
+    """
+    msg = get_msg(event, 3)
+    name = get_name(event)
+    result = RD(name, msg)
+
+    await bot.send_private_msg(user_id=event.user_id, message=result)
+    join_log_msg(data, event, result)
+
+    await matcher.finish(f"{name} 进行了一次暗骰~")
+
+
+@show.handle()
+async def show_card_handle(event: MessageEvent):
+    user_id = event.user_id
+    card = Attribute(data.get_card(user_id).skills).to_str()
+    msg = f"你的车卡数据如下：\n{card}"
+    await show.finish(msg)
+
+
+@insane_list.handle()
+async def show_insane_list_handle(event: MessageEvent, matcher: Matcher):
+    need = get_msg(event, 4)
+    if need == 'temp':
+        await matcher.finish("\n".join(crazy_temp))
+    if need == 'forever':
+        await matcher.finish("\n".join(crazy_forever))
+    
+@temp_insane.handle()
+async def get_temp_insane(event: MessageEvent, matcher: Matcher):
+    result = random("1d10")
+    if result == 9:
+        msg = choice(fear_list)
+    if result == 10:
+        msg = choice(crazy_list)
+    else:
+        msg = crazy_temp[result-1]
+    await matcher.finish(msg.replace("1D10", str(random("1d10"))))
+
+@forever_insane.handle()
+async def get_forever_insane(event: MessageEvent, matcher: Matcher):
+    result = random("1d10")
+    if result == 9:
+        msg = choice(fear_list)
+    if result == 10:
+        msg = choice(crazy_list)
+    else:
+        msg = crazy_forever[result-1]
+    await matcher.finish(msg.replace("1D10", str(random("1d10"))))
