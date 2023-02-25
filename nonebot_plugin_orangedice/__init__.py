@@ -45,7 +45,7 @@ show = on_startswith(".show", priority=5)  # 展示人物卡
 dao = on_startswith(".dao",priority=5) #人物卡导出
 coc_create = on_startswith(".coc", priority=5)  # 生成coc人物卡
 #疯狂检定相关
-insane_list = on_startswith(".list", priority=5)  # 获取所有疯狂表
+insane_list = on_startswith(".list", priority=4)  # 获取所有疯狂表
 temp_insane = on_startswith(".ti", priority=5)  # 临时疯狂表
 forever_insane = on_startswith(".li", priority=5)  # 永久疯狂表
 
@@ -69,6 +69,7 @@ async def roll_handle(matcher: Matcher, event: MessageEvent, name: str = Depends
         [out]进行了[测试]检定1D100=result
 
         [in].r
+
         RD('PlayerName',None, '')
         [out]进行了检定1D100=result
 
@@ -87,7 +88,6 @@ async def roll_handle(matcher: Matcher, event: MessageEvent, name: str = Depends
     join_log_msg(data, event, result)  # JOIN LOG MSG
 
     await matcher.finish(result)
-
 
 @roll_card.handle()
 async def roll_card_handle(matcher: Matcher, event: MessageEvent, name: str = Depends(get_name)):

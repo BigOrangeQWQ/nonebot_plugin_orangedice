@@ -91,7 +91,7 @@ class Attribute:
     def __str__(self) -> str:
         """将玩家的车卡数据转换为字符串"""
         attrs = ""
-        for k,v in self.attrs:
+        for k,v in self.attrs.items():
             attrs += f"{k}{v}"
         return attrs
 
