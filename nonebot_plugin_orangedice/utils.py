@@ -51,9 +51,17 @@ class Attribute:
                 return True
         return False
 
-    def set_attr(self, attr: str, value: int) -> Self:
+    def set(self, attr: str, value: int) -> Self:
         """设置属性值"""
         self.attrs[attr] = value
+        return self
+    
+    def add(self, attr: str, value: int) -> Self:
+        """增加属性值"""
+        if self.get(attr)+value > 100:
+            self.set(attr, 100)
+        else:
+            self.set(attr, self.get(attr)+value)
         return self
 
     def extend_attrs(self, attrs: str) -> Self:
@@ -84,6 +92,9 @@ class Attribute:
             same.add(k)
             same.update(v)
         return same
+    
+    def set_back(self):
+        ...
 
     def to_str(self) -> str:
         return self.__str__()
