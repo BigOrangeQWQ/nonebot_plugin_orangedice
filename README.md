@@ -39,19 +39,19 @@ SQLITE_FILE=DICE.db #数据库位置
 
 ## 指令集
 
-- [x] .r
-- [x] .rh
-- [x] .ra
-- [x] .st
-- [x] .li/ti
-- [x] .sc
-- [x] .log
-- [ ] .nn
-- [x] .help
-- [x] .list
-- [x] .coc
-- [ ] .en
-- [x] .dao
+- [x] .r  骰点
+- [x] .rh 暗骰
+- [x] .ra 属性骰点
+- [x] .st 录卡
+- [x] .li/ti 总结/临时疯狂检定
+- [x] .sc sancheck
+- [x] .log 日志
+- [ ] .nn 昵称修改
+- [x] .help 帮助
+- [x] .list 疯狂列表
+- [x] .coc 车卡
+- [ ] .en 成长检定
+- [x] .dao 导出人物卡
 
 ---
 
@@ -69,6 +69,7 @@ SQLITE_FILE=DICE.db #数据库位置
 ".show 展示人物卡"
 ".ti/li 临时/永久疯狂检定"
 ".coc(value) 生成coc人物卡"
+
 ```
 
 ### RD 普通骰子
