@@ -69,7 +69,7 @@ SQLITE_FILE=DICE.db #数据库位置
 ".show 展示人物卡"
 ".ti/li 临时/永久疯狂检定"
 ".coc(value) 生成coc人物卡"
-
+".en[attr][expr] 属性成长"
 ```
 
 ### RD 普通骰子
@@ -98,6 +98,16 @@ SQLITE_FILE=DICE.db #数据库位置
 并发送至指令执行者的窗口 
 ```
 .rh
+```
+
+### EN 成长
+对属性进行成长检定
+会自动赋值到人物卡上
+```
+.en[attritube][expr]
+
+.en力量20
+.en理智1d5+2
 ```
 
 ### ST 录人物卡
