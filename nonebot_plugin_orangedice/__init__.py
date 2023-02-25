@@ -17,15 +17,16 @@ from .roll import COC, RA, RD, SC, random
 __plugin_meta__ = PluginMetadata(
     name="orange_dice",
     description="一个普通的COC用骰子",
-    usage=".r#expr(attr) 骰点"
-    ".ra(attr)(value) 属性骰点"
-    ".st(attr value)/clear 人物卡录入/清除"
-    ".log on/off/upload/clear 日志功能开启/关闭/上传/清除"
-    ".sc(success)/(failure) ([san]) 理智检定[不可使用除法]"
+    usage=".r[expr]([attr]) 骰点"
+    ".ra[attr]([value]) 属性骰点"
+    ".st[attr][value]/clear 人物卡录入/清除"
+    ".log (on/off/upload/clear) 日志功能开启/关闭/上传/清除"
+    ".sc[success]/[failure] ([san]) 理智检定[不可使用除法]"
     ".rh 暗骰"
     ".show 展示人物卡"
     ".ti/li 临时/永久疯狂检定"
-    ".coc(value) 生成coc人物卡"
+    ".coc([value]) 生成coc人物卡"
+    ".en[attr][expr] 属性成长"
 )
 
 MANAGER = GROUP_ADMIN | GROUP_OWNER
@@ -42,8 +43,9 @@ roll_p = on_startswith(".rh", priority=4)  # 暗骰
 #人物卡相关
 card = on_startswith(".st", priority=5)  # 人物卡录入
 show = on_startswith(".show", priority=5)  # 展示人物卡
-dao = on_startswith(".dao",priority=5) #人物卡导出
+dao = on_startswith(".dao" ,priority=5) #人物卡导出
 coc_create = on_startswith(".coc", priority=5)  # 生成coc人物卡
+en = on_startswith(".en", priority=5)  # 属性成长
 #疯狂检定相关
 insane_list = on_startswith(".list", priority=4)  # 获取所有疯狂表
 temp_insane = on_startswith(".ti", priority=5)  # 临时疯狂表
@@ -188,7 +190,7 @@ async def sancheck_handle(matcher: Matcher, event: MessageEvent):
     if attr.get("san") == 0:
         await sancheck.finish("你没有理智属性")
     result, drop_san = SC(get_name(event), attr.get("san"), fdice, sdice)
-    data.set_card(user_id, attr.set_attr(
+    data.set_card(user_id, attr.set(
         "san", attr.get("san") - drop_san).to_str())
 
     join_log_msg(data, event, result)  # JOIN LOG MSG
@@ -239,7 +241,7 @@ async def show_insane_list_handle(event: MessageEvent, matcher: Matcher):
     """
     提供疯狂表
     """
-    need = get_msg(event, 4)
+    need = get_msg(event, 5)
     if need == 'temp':
         await matcher.finish("\n".join(crazy_temp))
     if need == 'forever':
@@ -300,3 +302,18 @@ async def dao_send(event: MessageEvent, matcher: Matcher):
     导出角色卡
     """
     await matcher.finish(Attribute(data.get_card(event.user_id).skills).dao())
+    
+@en.handle()
+async def improve_self(event: MessageEvent, matcher: Matcher,name: str = Depends(get_name)):
+    """
+    自我提升
+    """
+    msg = get_msg(event, 3)
+    matches = search(
+        r"(\d|[d|a|k|q|p|+|\-|\*|\/|\(|\)|x]){1,1000}", msg)
+    if matches:
+        item = msg.replace(matches.group(), "")
+        result = random(matches.group()) 
+        user_id = event.user_id
+        data.set_card(user_id, Attribute(data.get_card(user_id).skills).add(item, result).to_str())
+        await matcher.finish(f"{name} 对 {item} 理解提升了 {result} !")
