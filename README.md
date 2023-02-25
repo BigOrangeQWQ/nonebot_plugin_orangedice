@@ -10,7 +10,6 @@
 
 </div>
 
-## 欲使用前瞻与新功能请从Dev分支自己拉取代码
 
 ## 如何下载
 ```
@@ -40,19 +39,19 @@ SQLITE_FILE=DICE.db #数据库位置
 
 ## 指令集
 
-- [x] .r
-- [x] .rh
-- [x] .ra
-- [x] .st
-- [x] .li/ti
-- [x] .sc
-- [x] .log
-- [ ] .nn
-- [x] .help
-- [x] .list
-- [x] .coc
-- [ ] .en
-- [x] .dao
+- [x] .r  骰点
+- [x] .rh 暗骰
+- [x] .ra 属性骰点
+- [x] .st 录卡
+- [x] .li/ti 总结/临时疯狂检定
+- [x] .sc sancheck
+- [x] .log 日志
+- [ ] .nn 昵称修改
+- [x] .help 帮助
+- [x] .list 疯狂列表
+- [x] .coc 车卡
+- [ ] .en 成长检定
+- [x] .dao 导出人物卡
 
 ---
 
@@ -70,6 +69,7 @@ SQLITE_FILE=DICE.db #数据库位置
 ".show 展示人物卡"
 ".ti/li 临时/永久疯狂检定"
 ".coc(value) 生成coc人物卡"
+".en[attr][expr] 属性成长"
 ```
 
 ### RD 普通骰子
@@ -98,6 +98,16 @@ SQLITE_FILE=DICE.db #数据库位置
 并发送至指令执行者的窗口 
 ```
 .rh
+```
+
+### EN 成长
+对属性进行成长检定
+会自动赋值到人物卡上
+```
+.en[attritube][expr]
+
+.en力量20
+.en理智1d5+2
 ```
 
 ### ST 录人物卡
