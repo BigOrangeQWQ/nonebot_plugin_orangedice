@@ -50,7 +50,7 @@ SQLITE_FILE=DICE.db #数据库位置
 - [x] .help 帮助
 - [x] .list 疯狂列表
 - [x] .coc 车卡
-- [ ] .en 成长检定
+- [x] .en 成长检定
 - [x] .dao 导出人物卡
 
 ---
@@ -175,3 +175,4 @@ SHOW 指令会排除一些重复属性，而 DAO 则会把所有属性全部导�
 - [onedice](https://github.com/OlivOS-Team/onedice): Today, we stand as one.
 - [nonebot_plugin_cocdicer](https://github.com/abrahum/nonebot_plugin_cocdicer): A COC dice plugin for Nonebot2
 - [dice!](https://github.com/Dice-Developer-Team/Dice): QQ Dice Robot For TRPG
+- [Blog](https://ruslanspivak.com/lsbasi-part1/)

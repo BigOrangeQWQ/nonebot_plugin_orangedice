@@ -2,7 +2,7 @@
 
 [project]
 name = "nonebot_plugin_orangedice"
-version = "0.3.4"
+version = "0.3.5"
 description = "A COC dice plugin for nonebot2"
 authors = [
     {name = "BigOrangeQWQ", email = "2284086963@qq.com"},
@@ -13,7 +13,7 @@ dependencies = [
     "pydantic>=1.9.2",
     "sqlmodel>=0.0.8",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 readme = "README.md"
 license = {text = "MIT"}
 

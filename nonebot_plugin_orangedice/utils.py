@@ -81,8 +81,9 @@ class Attribute:
         """导出属性卡"""
         c = self.__str__()
         for k,v in same_attr_list.items():
-            for i in v:
-                c+=f"{i}{self.get(k)}"
+            if self.get(k) > 0:
+                for i in v:
+                    c+=f"{i}{self.get(k)}"
         return c
     
     def same_list(self):

@@ -248,7 +248,7 @@ class BinOP(AST):
 class Num(AST):
     def __init__(self, token: Token):
         self.token = token
-        self.value = token.value
+        self.value: int = token.value
 
 
 class DiceOP(AST):

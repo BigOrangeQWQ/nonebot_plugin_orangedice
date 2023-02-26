@@ -17,16 +17,16 @@ from .roll import COC, RA, RD, SC, random
 __plugin_meta__ = PluginMetadata(
     name="orange_dice",
     description="一个普通的COC用骰子",
-    usage=".r[expr]([attr]) 骰点"
-    ".ra[attr]([value]) 属性骰点"
-    ".st[attr][value]/clear 人物卡录入/清除"
-    ".log (on/off/upload/clear) 日志功能开启/关闭/上传/清除"
-    ".sc[success]/[failure] ([san]) 理智检定[不可使用除法]"
-    ".rh 暗骰"
-    ".show 展示人物卡"
-    ".ti/li 临时/永久疯狂检定"
-    ".coc([value]) 生成coc人物卡"
-    ".en[attr][expr] 属性成长"
+    usage=".r[expr]([attr]) 骰点\n"
+    ".ra[attr]([value]) 属性骰点\n"
+    ".st[attr][value]/clear 卡录/清除\n"
+    ".log (on/off/upload/clear) 日志功能开启/关闭/上传/清除\n"
+    ".sc[success]/[failure] ([san]) 理智检定[不可使用除法]\n"
+    ".rh 暗骰\n"
+    ".show 展示人物卡\n"
+    ".ti/li 临时/永久疯狂检定\n"
+    ".coc([value]) 生成coc人物卡\n"
+    ".en[attr][expr] 属性成长\n"
 )
 
 MANAGER = GROUP_ADMIN | GROUP_OWNER
@@ -255,9 +255,9 @@ async def get_temp_insane(event: MessageEvent, matcher: Matcher):
     """
     result = random("1d10")
     if result == 9: 
-        msg = f"9) 恐惧:{choice(fear_list)},持续{random('1d10')}轮"
+        msg = f"9) 恐惧症状-> {choice(fear_list)},持续{random('1d10')}轮"
     elif result == 10:
-        msg = f"10) 躁狂:{choice(crazy_list)},持续{random('1d10')}轮"
+        msg = f"10) 躁狂症状-> {choice(crazy_list)},持续{random('1d10')}轮"
     else:
         msg = crazy_temp[result-1]
     await matcher.finish(msg.replace("1D10", str(random("1d10"))))
@@ -270,9 +270,9 @@ async def get_forever_insane(event: MessageEvent, matcher: Matcher):
     """
     result = random("1d10")
     if result == 9:
-        msg = f"9) 恐惧:{choice(fear_list)}"
+        msg = f"9) 恐惧症状-> {choice(fear_list)}"
     elif result == 10:
-        msg = f"10) 躁狂:{choice(crazy_list)}"
+        msg = f"10) 躁狂症状->{choice(crazy_list)}"
     else:
         msg = crazy_forever[result-1]
     await matcher.finish(msg.replace("1D10", str(random("1d10"))))
@@ -283,9 +283,12 @@ async def create_coc_role(event: MessageEvent, matcher: Matcher):
     """
     创建人物卡
     """
-    value = int(get_msg(event, 4))
-    if value > 3:
-        value = 3
+    value = get_msg(event, 4)
+    if value== "":
+        value = 1
+    value = int(value)
+    if value > 5:
+        value = 5
     await matcher.finish("\n".join([COC() for i in range(value)]))
 
 
