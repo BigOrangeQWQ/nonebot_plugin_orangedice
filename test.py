@@ -1,17 +1,18 @@
-# import re
-
-# regex = r"(\S{1,100})\/(\S{1,100})"
-
-# test_str = ("test/test2\n"
-# 	"+-*//////////+-*///")
-
-# matches = re.search(regex, test_str, re.MULTILINE)
-
-# # print(matches.group(2))
-# # Note: for Python 2.7 compatibility, use ur"" to prefix the regex and u"" to prefix the test string and substitution.
+from nonebot import init, load_plugin
+from tomllib import load
 
 
+def get_project_name() -> str:
+    with open("pyproject.toml", "rb") as f:
+        return load(f)['project']['name']
+    
+def run_plugin_test(name: str) -> None:
+    init(driver="~none")
+    valid = load_plugin(name)
+    if not valid:
+        exit(1)
+    else:
+        exit(0)
 
-b = ""
-if b == "":
-    print("b")
+if __name__ == "__main__":
+    run_plugin_test(get_project_name())
