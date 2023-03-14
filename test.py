@@ -1,10 +1,15 @@
 from nonebot import init, load_plugin
-from tomllib import load
+
+try:
+    from tomllib import loads as load
+except:
+    from tomlkit import parse as load
+    
 
 
 def get_project_name() -> str:
-    with open("pyproject.toml", "rb") as f:
-        return load(f)['project']['name']
+    with open("pyproject.toml", "r") as f:
+        return load(f.read()).get("project", {}).get("name", "noneplugin")
     
 def run_plugin_test(name: str) -> None:
     init(driver="~none")

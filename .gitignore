@@ -1,6 +1,13 @@
-dist/
-build/
-.venv/
+### Vscode ###
 .vscode/
+
+### build ###
+/.venv
+/dist
+
+### cache ###
+__pycache__/
+
+### PDM ###
 .pdm.toml
 pdm.lock
