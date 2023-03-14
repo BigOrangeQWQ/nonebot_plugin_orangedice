@@ -71,7 +71,11 @@ class Attribute:
 
     def get(self, attr: str) -> int:
         """获取属性值"""
-        if attr in self.same:
+        # if attr in self.same:
+        #     for k,v in same_attr_list.items():
+        #         if attr in v:
+        #             return self.attrs.get(k, 0)
+        if self.is_alias(attr):
             for k,v in same_attr_list.items():
                 if attr in v:
                     return self.attrs.get(k, 0)

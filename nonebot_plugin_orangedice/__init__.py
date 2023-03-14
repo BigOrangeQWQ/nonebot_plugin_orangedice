@@ -1,4 +1,3 @@
-from ast import MatchSequence
 from pathlib import Path
 from re import search
 from random import choice
