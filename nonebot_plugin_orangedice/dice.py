@@ -193,7 +193,7 @@ class Parser:
                 arg = int(self.atom())
                 if self.token.value == 'k':
                     _cache.sort(reverse=True)
-                if self.token.value == 'p':
+                if self.token.value == 'q':
                     _cache.sort()
                 for i in range(0, arg):
                     result += _cache[i]
@@ -277,16 +277,11 @@ class Interpreter:
 
 
 # ——TEST——
-# args = [
-#         '2+3',
-#         '2+3*44',
-#         '2+(3+4)*2',
-#         '(((1)))',
-#         '1d5',
-#         '1d100a25',
-#         '3d100k3'
-#         ]
+args = [
+        '3d100q3'
+        ]
 
-# for i in args:
-#     parser = test(i)
+for i in args:
+    parser = Parser(Lexer(i))
+    print(parser.parse())
 

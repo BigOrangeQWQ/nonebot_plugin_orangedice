@@ -33,6 +33,7 @@ class Attribute:
     def __init__(self, args: str):
         self.attrs = self.get_attrs(args)
         self.same = self.same_list()
+        self.alias_dict = self._alias_dict()
 
     def get_attrs(self, msg: str) -> Dict[str, int]:
         """通过正则处理玩家的车卡数据，获取属性值"""
@@ -43,6 +44,14 @@ class Attribute:
             if not self.is_alias(a):
                 attrs[str(a)] = int(b)
         return attrs
+    
+    def _alias_dict(self) -> Dict[str, str]:
+        """返回别名字典 {别名:属性}"""
+        alias_dict: Dict[str, str] = {}
+        for k,v in same_attr_list.items():
+            for i in v:
+                alias_dict[i] = k
+        return alias_dict
     
     def is_alias(self, attr: str) -> bool:
         """判定属性是否为别名"""
@@ -71,14 +80,8 @@ class Attribute:
 
     def get(self, attr: str) -> int:
         """获取属性值"""
-        # if attr in self.same:
-        #     for k,v in same_attr_list.items():
-        #         if attr in v:
-        #             return self.attrs.get(k, 0)
         if self.is_alias(attr):
-            for k,v in same_attr_list.items():
-                if attr in v:
-                    return self.attrs.get(k, 0)
+            return self.attrs.get(self.alias_dict.get(attr,'none'), 0)
         return self.attrs.get(attr, 0)
     
     def dao(self) -> str:
