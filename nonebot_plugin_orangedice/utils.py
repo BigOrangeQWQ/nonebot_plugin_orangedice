@@ -31,17 +31,19 @@ class Attribute:
     """属性类"""
 
     def __init__(self, args: str):
-        self.attrs = self.get_attrs(args)
         self.same = self.same_list()
         self.alias_dict = self._alias_dict()
+        self.attrs = self.get_attrs(args)
 
     def get_attrs(self, msg: str) -> Dict[str, int]:
         """通过正则处理玩家的车卡数据，获取属性值"""
-        find: list[tuple[str, int]] = findall(r"(\D{2,10})(\d{1,3})", msg)
+        find: list[tuple[str, int]] = findall(r"(\D{1,10})(\d{1,3})", msg)
         attrs: Dict[str, int] = {}
         for i in find:
             a, b = i
-            if not self.is_alias(a):
+            if self.is_alias(a):
+                attrs[self.alias_dict[a]] = int(b)
+            else:
                 attrs[str(a)] = int(b)
         return attrs
     
@@ -55,10 +57,13 @@ class Attribute:
     
     def is_alias(self, attr: str) -> bool:
         """判定属性是否为别名"""
-        for v in same_attr_list.values():
-            if attr in v:
-                return True
+        if attr in self.same:
+            return True
         return False
+        # for v in same_attr_list.values():
+        #     if attr in v:
+        #         return True
+        # return False
 
     def set(self, attr: str, value: int) -> Self:
         """设置属性值"""
@@ -113,7 +118,7 @@ class Attribute:
         for k,v in self.attrs.items():
             attrs += f"{k}{v}"
         return attrs
-
+    
 
 def join_log_msg(data: DataContainer, event: MessageEvent, msg: str):
     """拼接日志消息"""

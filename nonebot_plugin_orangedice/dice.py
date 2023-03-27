@@ -277,11 +277,11 @@ class Interpreter:
 
 
 # ——TEST——
-args = [
-        '3d100q3'
-        ]
+# args = [
+#         '3d100q3'
+#         ]
 
-for i in args:
-    parser = Parser(Lexer(i))
-    print(parser.parse())
+# for i in args:
+#     parser = Parser(Lexer(i))
+#     print(parser.parse())
 
