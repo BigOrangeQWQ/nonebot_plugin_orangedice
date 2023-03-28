@@ -60,10 +60,6 @@ class Attribute:
         if attr in self.same:
             return True
         return False
-        # for v in same_attr_list.values():
-        #     if attr in v:
-        #         return True
-        # return False
 
     def set(self, attr: str, value: int) -> Self:
         """设置属性值"""
@@ -101,9 +97,8 @@ class Attribute:
     def same_list(self):
         """将同义词并做一个集合"""
         same = set()
-        for k,v in same_attr_list.items():
-            same.add(k)
-            same.update(v)
+        for i in same_attr_list.values():
+            same.update(i)
         return same
     
     def set_back(self):
