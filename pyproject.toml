@@ -12,6 +12,7 @@ dependencies = [
     "sqlmodel>=0.0.8",
     "nonebot2>=2.0.1",
     "nonebot-adapter-onebot>=2.2.3",
+    "tomlkit>=0.12.1",
 ]
 requires-python = ">=3.8"
 readme = "README.md"
