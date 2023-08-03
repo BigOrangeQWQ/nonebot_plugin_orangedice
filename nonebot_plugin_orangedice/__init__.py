@@ -1,6 +1,7 @@
 from pathlib import Path
-from re import search
+from re import search, Match
 from random import choice
+from typing import Dict, Union
 from nonebot import get_driver
 from nonebot.params import Depends
 from nonebot.matcher import Matcher
@@ -15,7 +16,7 @@ from .roll import COC, RA, RD, SC, random
 
 __plugin_meta__ = PluginMetadata(
     name="orange_dice",
-    description="一个普通的COC用骰子",
+    description="具有技能鉴定、人物卡、日志记录的COC用插件",
     usage=".r[expr]([attr]) 骰点\n"
     ".ra[attr]([value]) 属性骰点\n"
     ".st[attr][value]/clear 卡录/清除\n"
@@ -25,7 +26,12 @@ __plugin_meta__ = PluginMetadata(
     ".show 展示人物卡\n"
     ".ti/li 临时/永久疯狂检定\n"
     ".coc([value]) 生成coc人物卡\n"
-    ".en[attr][expr] 属性成长\n"
+    ".en[attr][expr] 属性成长\n",
+    type="application",
+    config=Config,
+    homepage="https://github.com/BigOrangeQWQ/nonebot_plugin_orangedice",
+    supported_adapters={"~onebot.v11"},
+    extra={}
 )
 
 MANAGER = GROUP_ADMIN | GROUP_OWNER
@@ -78,11 +84,11 @@ async def roll_handle(matcher: Matcher, event: MessageEvent, name: str = Depends
         [error out]进行了检定1D100=0
     """
     msg: str = get_msg(event, 2)
-    matches = search(
+    matches: Union[Match[str], None] = search(
         r"(\d|[d|a|k|q|p|+|\-|\*|\/|\(|\)|x]){1,1000}", msg)  # 匹配骰子公式
     if matches is None:
 
-        result = RD(name, msg)
+        result: str = RD(name, msg)
     else:
         result = RD(name, matches.group(), msg.replace(matches.group(), ""))
 
@@ -104,8 +110,8 @@ async def roll_card_handle(matcher: Matcher, event: MessageEvent, name: str = De
         [out]name[100]进行了[测试]检定1D100=result [msg]
     """
 
-    user_id = event.user_id
-    card = Attribute(data.get_card(user_id).skills).attrs
+    user_id: int = event.user_id
+    card: Dict[str, int] = Attribute(data.get_card(user_id).skills).attrs
     msg = get_msg(event, 3)
     # 正则匹配
     match_item = search(r"\D{1,100}", msg)  # 搜索 测试
@@ -149,8 +155,8 @@ async def log_handle(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
     """
     日志相关指令
     """
-    msg = get_msg(event, 4)
-    group_id = event.group_id
+    msg: str = get_msg(event, 4)
+    group_id: int = event.group_id
     if msg == 'on':
         data.open_log(group_id)
         await matcher.finish("已开启记录日志")
@@ -161,9 +167,9 @@ async def log_handle(matcher: Matcher, event: GroupMessageEvent, bot: Bot):
         with open(plugin_config.cache_file, 'w', encoding='utf-8') as f:
             for i in data.get_log(group_id).msg:
                 f.write(f"{i}\n")
-        file = Path(plugin_config.cache_file).absolute().as_posix()
+        file_path: str = Path(plugin_config.cache_file).absolute().as_posix()
         try:
-            await bot.upload_group_file(group_id=group_id, file=file, name=f'logs-{event.message_id}.txt')
+            await bot.upload_group_file(group_id=group_id, file=file_path, name=f'logs-{event.message_id}.txt')
         except:
             await matcher.finish("上传群文件失败，请检查橘子的权限。")
         await matcher.finish("已上传至群文件")
@@ -179,10 +185,10 @@ async def sancheck_handle(matcher: Matcher, event: MessageEvent):
     """
     处理理智检定
     """
-    msg = get_msg(event, 3)
+    msg: str = get_msg(event, 3)
     attr = Attribute(data.get_card(event.user_id).skills)
-    user_id = event.user_id
-    match = search(r"(\S{1,100})\/(\S{1,100})", msg)
+    user_id: int = event.user_id
+    match: Union[Match[str] ,None] = search(r"(\S{1,100})\/(\S{1,100})", msg)
     sdice, fdice = "1", "1d3"
     if match is not None:
         sdice, fdice = match.group(1), match.group(2)
@@ -202,9 +208,9 @@ async def log_msg_handle(event: GroupMessageEvent):
     """
     记录群聊信息
     """
-    group_id = event.group_id
-    msg = event.message.extract_plain_text()
-    name = get_name(event)
+    group_id: int = event.group_id
+    msg: str = event.message.extract_plain_text()
+    name: str = get_name(event)
     if data.is_logging(group_id):
         data.log_add(group_id, f'[{name}] {msg}')
 
@@ -214,9 +220,9 @@ async def private_roll_handle(matcher: Matcher, event: GroupMessageEvent, bot: B
     """
     1D100暗骰指令
     """
-    msg = get_msg(event, 3)
-    name = get_name(event)
-    result = RD(name, msg)
+    msg: str = get_msg(event, 3)
+    name: str = get_name(event)
+    result: str = RD(name, msg)
 
     await bot.send_private_msg(user_id=event.user_id, message=result)
     join_log_msg(data, event, result)
@@ -229,9 +235,9 @@ async def show_card_handle(event: MessageEvent):
     """
     展示人物卡数据
     """
-    user_id = event.user_id
-    card = Attribute(data.get_card(user_id).skills).to_str()
-    msg = f"你的车卡数据如下：\n{card}"
+    user_id: int = event.user_id
+    card: str = Attribute(data.get_card(user_id).skills).to_str()
+    msg: str = f"你的车卡数据如下：\n{card}"
     await show.finish(msg)
 
 
@@ -240,7 +246,7 @@ async def show_insane_list_handle(event: MessageEvent, matcher: Matcher):
     """
     提供疯狂表
     """
-    need = get_msg(event, 5)
+    need: str = get_msg(event, 5)
     if need == 'temp':
         await matcher.finish("\n".join(crazy_temp))
     if need == 'forever':
@@ -252,9 +258,9 @@ async def get_temp_insane(event: MessageEvent, matcher: Matcher):
     """
     临时疯狂检定
     """
-    result = random("1d10")
+    result: int = random("1d10")
     if result == 9: 
-        msg = f"9) 恐惧症状-> {choice(fear_list)},持续{random('1d10')}轮"
+        msg: str = f"9) 恐惧症状-> {choice(fear_list)},持续{random('1d10')}轮"
     elif result == 10:
         msg = f"10) 躁狂症状-> {choice(crazy_list)},持续{random('1d10')}轮"
     else:
@@ -267,9 +273,9 @@ async def get_forever_insane(event: MessageEvent, matcher: Matcher):
     """
     总结疯狂检定
     """
-    result = random("1d10")
+    result: int = random("1d10")
     if result == 9:
-        msg = f"9) 恐惧症状-> {choice(fear_list)}"
+        msg: str = f"9) 恐惧症状-> {choice(fear_list)}"
     elif result == 10:
         msg = f"10) 躁狂症状->{choice(crazy_list)}"
     else:
@@ -282,7 +288,7 @@ async def create_coc_role(event: MessageEvent, matcher: Matcher):
     """
     创建人物卡
     """
-    value = get_msg(event, 4)
+    value: Union[str, int] = get_msg(event, 4)
     if value== "":
         value = 1
     value = int(value)
@@ -310,12 +316,12 @@ async def improve_self(event: MessageEvent, matcher: Matcher,name: str = Depends
     """
     自我提升
     """
-    msg = get_msg(event, 3)
-    matches = search(
+    msg: str = get_msg(event, 3)
+    matches: Union[Match[str], None] = search(
         r"(\d|[d|a|k|q|p|+|\-|\*|\/|\(|\)|x]){1,1000}", msg)
     if matches:
-        item = msg.replace(matches.group(), "")
-        result = random(matches.group()) 
-        user_id = event.user_id
+        item: str = msg.replace(matches.group(), "")
+        result: int = random(matches.group()) 
+        user_id: int = event.user_id
         data.set_card(user_id, Attribute(data.get_card(user_id).skills).add(item, result).to_str())
         await matcher.finish(f"{name} 对 {item} 理解提升了 {result} !")
