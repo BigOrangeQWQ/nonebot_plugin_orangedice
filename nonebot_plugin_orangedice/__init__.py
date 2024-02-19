@@ -2,7 +2,7 @@ from pathlib import Path
 from re import search, Match
 from random import choice
 from typing import Dict, Union
-from nonebot import get_driver
+from nonebot import get_plugin_config
 from nonebot.params import Depends
 from nonebot.matcher import Matcher
 from nonebot.plugin import on_startswith, on_message, PluginMetadata
@@ -55,14 +55,13 @@ en = on_startswith(".en", priority=5)  # 属性成长
 insane_list = on_startswith(".list", priority=4)  # 获取所有疯狂表
 temp_insane = on_startswith(".ti", priority=5)  # 临时疯狂表
 forever_insane = on_startswith(".li", priority=5)  # 永久疯狂表
-
-# -> 非阻断响应器
-log_msg = on_message(priority=1, block=False)  # 记录日志
-
 # -> 数据相关
-driver = get_driver()
-plugin_config = Config.parse_obj(driver.config)
+plugin_config = get_plugin_config(Config)
 data = DataContainer()
+# -> 非阻断响应器
+async def log_msg_rule(event: GroupMessageEvent) -> bool:
+    return data.is_logging(event.group_id)
+log_msg = on_message(rule=log_msg_rule, priority=1, block=False)  # 记录日志
 
 
 @roll.handle()
@@ -211,8 +210,7 @@ async def log_msg_handle(event: GroupMessageEvent):
     group_id: int = event.group_id
     msg: str = event.message.extract_plain_text()
     name: str = get_name(event)
-    if data.is_logging(group_id):
-        data.log_add(group_id, f'[{name}] {msg}')
+    data.log_add(group_id, f'[{name}] {msg}')
 
 
 @roll_p.handle()
