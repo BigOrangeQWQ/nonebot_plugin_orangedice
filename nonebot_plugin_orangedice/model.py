@@ -5,9 +5,8 @@
 
 import json
 from typing import List
-from nonebot import get_driver
+from nonebot import get_plugin_config
 from sqlmodel import Field, SQLModel, create_engine,select, Session
-
 from .config import Config
 
 
@@ -25,7 +24,7 @@ class GroupLOG(SQLModel, table=True):
 class DataContainer:
 
     def __init__(self) -> None:
-        config = Config.parse_obj(get_driver().config)
+        config = get_plugin_config(Config)
         self.sqlite_file = config.sqlite_file
         self.engine = create_engine(f"sqlite:///{self.sqlite_file}")
         SQLModel.metadata.create_all(self.engine)
@@ -124,9 +123,12 @@ class DataContainer:
             statement = select(GroupLOG).where(GroupLOG.group_id == group_id)
             log = session.exec(statement).first()
             if log:
-                a = json.loads(log.msg)
+                try:
+                    a = json.loads(log.msg)
+                except json.decoder.JSONDecodeError:
+                    a = []
                 a.append(msg)
-                log.msg = str(a)
+                log.msg = json.dumps(a, ensure_ascii=False)
                 session.add(log)
             else:
                 log = GroupLOG(group_id=group_id, log=False, msg=f'[{msg}]')
