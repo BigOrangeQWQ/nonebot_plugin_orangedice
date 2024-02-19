@@ -10,8 +10,8 @@ authors = [
 dependencies = [
     "pydantic>=1.9.2",
     "sqlmodel>=0.0.8",
-    "nonebot2>=2.0.1",
-    "nonebot-adapter-onebot>=2.2.3",
+    "nonebot2>=2.2.0",
+    "nonebot-adapter-onebot>=2.4.0",
 ]
 requires-python = ">=3.8"
 readme = "README.md"
